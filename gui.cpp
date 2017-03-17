@@ -33,9 +33,9 @@ void update_fps(GLFWwindow *window)
     {
         char str[256];
 #ifdef _WIN32
-        sprintf_s(str, "Project 0 (FPS: %d)", last_fps);
+        sprintf_s(str, "Ray Tracer (FPS: %d)", last_fps);
 #else
-        snprintf(str, sizeof(str), "Project 0 (FPS: %d)", last_fps);
+        snprintf(str, sizeof(str), "Ray Tracer (FPS: %d)", last_fps);
 #endif
         glfwSetWindowTitle(window, str);
         last_time = glfwGetTime();
@@ -58,7 +58,7 @@ void show_image(image &img)
     }
     GLFWwindow *window;
     window = glfwCreateWindow(img.width / COEFF, img.height / COEFF,
-                              "Project 0", NULL, NULL);
+                              "Ray Tracer", NULL, NULL);
     if (!window)
     {
         glfwTerminate();

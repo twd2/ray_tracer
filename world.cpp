@@ -9,7 +9,7 @@ std::vector<world_intersect_result> world::intersect_multi(const ray &r)
     for (auto &o_ptr : _objects)
     {
         intersect_result ir = o_ptr->intersect(r);
-        printf("%p, %d\n", o_ptr.get(), ir.succeeded);
+        //printf("%p, %d\n", o_ptr.get(), ir.succeeded);
         if (ir.succeeded)
         {
             results.push_back(world_intersect_result(*o_ptr, ir.p, ir.n));

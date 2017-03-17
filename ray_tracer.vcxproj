@@ -158,19 +158,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="geometry.cpp" />
-    <ClCompile Include="graphics.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="image.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="plane.cpp" />
+    <ClCompile Include="ray.cpp" />
+    <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="image.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="plane.h" />
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="sphere.h" />
+    <ClInclude Include="vector3d.hpp" />
+    <ClInclude Include="world.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

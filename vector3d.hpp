@@ -2,6 +2,7 @@
 #define _VECTOR3D_H_
 
 #include <cmath>
+#include <cstddef>
 
 template <typename T>
 class vector3d
@@ -56,7 +57,7 @@ public:
 
     vector3d operator/(T a) const
     {
-        return (*this) * (1 / a);
+		return vector3d(x / a, y / a, z / a);
     }
 
     bool operator==(const vector3d &v2) const
