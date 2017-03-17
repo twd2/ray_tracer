@@ -14,9 +14,9 @@ ifeq ($(shell uname),Linux)
 
 	# linker
 	LD = g++
-	LIB_DIR = lib/linux
+	LIB_DIR = -L lib/linux
 	LD_LIBS = -lglfw3 -lstdc++ -lc -lm -ldl -lX11 -lpthread -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lGLU
-	LD_FLAGS = -L $(LIB_DIR)
+	LD_FLAGS = $(LIB_DIR)
 else
 
 ifeq ($(shell uname),Darwin)
@@ -26,9 +26,9 @@ ifeq ($(shell uname),Darwin)
 
 	# linker
 	LD = cc
-	LIB_DIR = lib/osx
+	LIB_DIR = -L lib/osx
 	LD_LIBS = -lc++ -lm -lSystem -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
-	LD_FLAGS = -L $(LIB_DIR)
+	LD_FLAGS = $(LIB_DIR)
 else
 	# Unsupported operating system.
 	CC = echo && echo "******** Unsupported operating system! ********" && echo && exit 1 ||
