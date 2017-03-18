@@ -18,34 +18,34 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         return vector3df::zero;
     }
 
-    vector3df Id = vector3df::zero;
+    vector3df Id = vector3df::zero, Is = vector3df::zero;
     for (auto &light_ptr : w.lights)
     {
         light_info li = light_ptr->illuminate(ir.result.p);
-        Id = Id + li.lightness.modulate(ir.obj.diffuse * abs(li.direction.dot(-ir.result.n)));
+        if (li.lightness == vector3df::zero)
+        {
+            continue;
+        }
+
+        double N_dot_L = li.direction.dot(-ir.result.n);
+        if (N_dot_L >= eps)
+        {
+            Id = Id + li.lightness.modulate(ir.obj.diffuse * li.direction.dot(-ir.result.n));
+        }
+
+        vector3df R = -li.direction.reflect(ir.result.n);
+        double R_dot_V = R.dot(r.direction);
+        if (R_dot_V >= eps)
+        {
+            Is = Is + li.lightness.modulate(ir.obj.specular * pow(R_dot_V, ir.obj.shininess));
+        }
     }
 
-    if (Id.x > 1.0)
-    {
-        Id.x = 1.0;
-    }
-    if (Id.y > 1.0)
-    {
-        Id.y = 1.0;
-    }
-    if (Id.z > 1.0)
-    {
-        Id.z = 1.0;
-    }
-    return Id;
-    // return ir.result.n * 0.5 + vector3df(0.5, 0.5, 0.5);
-    double distance = ir.result.distance;
-    if (distance > 1000.0)
-    {
-        return vector3df::zero;
-    }
+    vector3df I = (Id + Is) * (1 - ir.obj.reflectiveness);
+    vector3df Ir = ray_trace(ray(ir.result.p, r.direction.reflect(ir.result.n)), contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
+    I = I + Ir;
 
-    return vector3df(1.0, 1.0, 1.0) * (1000.0 - distance) / 1000.0;
+    return I.capped();
 }
 
 void camera::render(image &img) const

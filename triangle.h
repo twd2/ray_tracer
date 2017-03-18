@@ -11,10 +11,11 @@ class triangle
 {
 public:
     const vector3df a, b, c;
-    const plane p;
+    const vector3df E1, E2, E1xE2, n;
 
     triangle(const vector3df &a, const vector3df &b, const vector3df &c)
-        : object(), a(a), b(b), c(c), p(a, (b - a).cross(c - a).normalize())
+        : object(), a(a), b(b), c(c), E1(a - b), E2(a - c),
+        E1xE2(E1.cross(E2)), n(E1xE2.normalize())
     {
 
     }

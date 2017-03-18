@@ -15,12 +15,12 @@ intersect_result plane::intersect(const ray &r) const
         return intersect_result::failed;
     }
 
-    double t = -(D + n.dot(r.location)) / divisor;
+    double t = -(D + n.dot(r.origin)) / divisor;
 
     if (t <= eps)
     {
         return intersect_result::failed;
     }
 
-    return intersect_result(r.location + r.direction * t, n, t);
+    return intersect_result(r.origin + r.direction * t, n, t);
 }

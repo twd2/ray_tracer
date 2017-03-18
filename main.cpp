@@ -69,26 +69,30 @@ int main(int argc, char **argv)
     w.get_object(0).diffuse = vector3df(0.5, 0.9, 0.5);*/
     w.add_object(std::make_shared<plane>(
         vector3df(0.0, -1000.0, 0.0),
-        vector3df(0.0, 1.0, 0.0).normalize()));
+        vector3df(0.0, 1.0, 0.1).normalize()));
     w.get_object(0).diffuse = vector3df(0.5, 0.5, 0.9);
     w.add_object(std::make_shared<sphere>(vector3df(0.0, 0.0, -900.0), 500.0));
+    w.add_object(std::make_shared<sphere>(vector3df(0.0, -500.0, -900.0), 500.0));
     w.add_object(std::make_shared<sphere>(vector3df(-1000.0, -800.0, -600.0), 10.0));
     w.add_object(std::make_shared<sphere>(vector3df(-850.0, -850.0, -400.0), 20.0));
-    w.add_object(std::make_shared<sphere>(vector3df(-700.0, -900.0, -600.0), 30.0));
-    w.get_object(2).diffuse = vector3df(0.5, 0.5, 0.5);
+    w.add_object(std::make_shared<sphere>(vector3df(-700.0, -900.0, -700.0), 30.0));
     w.get_object(3).diffuse = vector3df(0.5, 0.5, 0.5);
     w.get_object(4).diffuse = vector3df(0.5, 0.5, 0.5);
+    w.get_object(5).diffuse = vector3df(0.5, 0.5, 0.5);
     w.add_object(std::make_shared<triangle>(
         vector3df(-1000.0, -800.0, -600.0),
         vector3df(-850.0, -850.0, -400.0),
-        vector3df(-700.0, -900.0, -600.0)));
-    w.get_object(5).diffuse = vector3df(0.5, 0.5, 0.5);
+        vector3df(-700.0, -900.0, -700.0)));
+    w.get_object(6).diffuse = vector3df(0.5, 0.5, 0.5);
+    intersect_result ir = w.get_object(5).intersect(ray(vector3df(-850.0, 0.0, -500.0), vector3df(0.0, -1.0, 0.0)));
     //w.get_object(1).transparency = vector3df(0.5, 0.5, 0.5);
-    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 1.0)));
-    // w.lights.push_back(std::make_shared<point_light>(w, vector3df(-1000.0, 1500.0, -500.0), vector3df(1.0, 1.0, 1.0)));
-    // w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, -500.0), vector3df(1.0, 1.0, 1.0)));
+    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8)));
+    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(-1000.0, 1500.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
+    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
+    w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8)));
+    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1.0, 1000.0), vector3df(1.0, 1.0, 0.8)));
 
-    camera c(w, vector3df(0.0, 0.0, 1000));
+    camera c(w, vector3df(0.0, 0.0, 1000.0));
         
     // Performance test.
     for (int N = 1; N <= 1; ++N)

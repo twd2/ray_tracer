@@ -6,8 +6,6 @@
 #include "ray.h"
 #include "vector3d.hpp"
 
-typedef double coeff_t;
-
 class intersect_result
 {
 public:
@@ -35,10 +33,10 @@ class object
 {
 public:
     vector3df diffuse = vector3df(0.0, 1.0, 5.0);
-    vector3df ambient, specular;
+    vector3df ambient, specular = vector3df(0.5, 0.5, 0.5);
     vector3df transparency = vector3df::zero;
-    coeff_t reflectiveness, refractiveness;
-    coeff_t refractive_index = 1.0; // Refractive index.
+    double shininess = 16.0, reflectiveness = 0.2, refractiveness;
+    double refractive_index = 1.0; // Refractive index.
 
     // First intersection.
     virtual intersect_result intersect(const ray &r) const

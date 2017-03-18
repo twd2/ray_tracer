@@ -9,7 +9,7 @@
 
 intersect_result sphere::intersect(const ray &r) const
 {
-    vector3df l = c - r.location;
+    vector3df l = c - r.origin;
     double tp = l.dot(r.direction);
     double d2 = l.length2() - tp * tp;
     if (d2 >= r2)
@@ -50,13 +50,13 @@ intersect_result sphere::intersect(const ray &r) const
         return intersect_result::failed;
     }
 
-    vector3df p = r.location + r.direction * t;
+    vector3df p = r.origin + r.direction * t;
     return intersect_result(p, (p - c) / this->r, t);
 }
 
 std::vector<intersect_result> sphere::intersect_all(const ray &r) const
 {
-    vector3df r_c = r.location - c;
+    vector3df r_c = r.origin - c;
     double B = r.direction.dot(r_c), C = r_c.length2() - r2; // t^2 + 2Bt + C = 0
     double delta2 = B * B - C;
     if (delta2 <= eps2)
@@ -68,12 +68,12 @@ std::vector<intersect_result> sphere::intersect_all(const ray &r) const
     std::vector<intersect_result> results;
     if (t1 > eps)
     {
-        vector3df p = r.location + r.direction * t1;
+        vector3df p = r.origin + r.direction * t1;
         results.push_back(intersect_result(p, (p - c) / this->r, t1));
     }
     if (t2 > eps)
     {
-        vector3df p = r.location + r.direction * t2;
+        vector3df p = r.origin + r.direction * t2;
         results.push_back(intersect_result(p, (p - c) / this->r, t2));
     }
     return results;

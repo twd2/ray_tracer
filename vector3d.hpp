@@ -103,7 +103,7 @@ public:
 
     vector3d reflect(const vector3d &n) const
     {
-        return (*this) - n.dot(*this) * 2 * n;
+        return (*this) - n * (2.0 * n.dot(*this));
     }
 
     vector3d refract(const vector3d &i, const vector3d &n, double n_i, double n_r) const
@@ -115,16 +115,37 @@ public:
         return i * n_i_n_r - n * (n_i_n_r * i_dot_n + cosr);
     }
 
+    vector3d capped() const
+    {
+        vector3d result = *this;
+        if (result.x > 1.0)
+        {
+            result.x = 1.0;
+        }
+        if (result.y > 1.0)
+        {
+            result.y = 1.0;
+        }
+        if (result.z > 1.0)
+        {
+            result.z = 1.0;
+        }
+        return result;
+    }
+
     bool is_zero() const
     {
         return (*this) == zero; // TODO: float.
     }
 
-    static const vector3d zero, right, up, back;
+    static const vector3d zero, one, right, up, back;
 };
 
 template <typename T>
 const vector3d<T> vector3d<T>::zero(T(0), T(0), T(0));
+
+template <typename T>
+const vector3d<T> vector3d<T>::one(T(1), T(1), T(1));
 
 template <typename T>
 const vector3d<T> vector3d<T>::right(T(1), T(0), T(0));
