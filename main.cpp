@@ -70,9 +70,15 @@ int main(int argc, char **argv)
     w.add_object(std::make_shared<plane>(
         vector3df(0.0, -1000.0, 0.0),
         vector3df(0.0, 1.0, 0.1).normalize()));
-    w.get_object(0).diffuse = vector3df(0.5, 0.5, 0.9);
-    w.add_object(std::make_shared<sphere>(vector3df(0.0, 0.0, -900.0), 500.0));
-    w.add_object(std::make_shared<sphere>(vector3df(0.0, -500.0, -900.0), 500.0));
+    w.get_object(0).diffuse = vector3df(0.2, 0.6, 0.6);
+    //w.get_object(0).reflectiveness = 0.0;
+    w.add_object(std::make_shared<sphere>(vector3df(600.0, 250.0, -900.0), 500.0));
+    w.get_object(1).diffuse = vector3df(0.01, 0.01, 0.01);
+    w.get_object(1).transparency = vector3df::one * 0.8;
+    w.get_object(1).refractiveness = 0.8;
+    w.get_object(1).refractive_index = 1.333;
+    w.get_object(1).reflectiveness = 0.3;
+    w.add_object(std::make_shared<sphere>(vector3df(0.0, -1500.0, -900.0), 500.0));
     w.add_object(std::make_shared<sphere>(vector3df(-1000.0, -800.0, -600.0), 10.0));
     w.add_object(std::make_shared<sphere>(vector3df(-850.0, -850.0, -400.0), 20.0));
     w.add_object(std::make_shared<sphere>(vector3df(-700.0, -900.0, -700.0), 30.0));
@@ -84,10 +90,15 @@ int main(int argc, char **argv)
         vector3df(-850.0, -850.0, -400.0),
         vector3df(-700.0, -900.0, -700.0)));
     w.get_object(6).diffuse = vector3df(0.5, 0.5, 0.5);
+    w.add_object(std::make_shared<triangle>(
+        vector3df(0.0, 501.0, -5000.0),
+        vector3df(-500.0, -1.0, -5000.0),
+        vector3df(1000.0, -1.0, -5000.0)));
+    w.get_object(7).diffuse = vector3df(0.5, 0.5, 0.5);
     intersect_result ir = w.get_object(5).intersect(ray(vector3df(-850.0, 0.0, -500.0), vector3df(0.0, -1.0, 0.0)));
     //w.get_object(1).transparency = vector3df(0.5, 0.5, 0.5);
-    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8)));
-    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(-1000.0, 1500.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
+    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
+    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 600.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
     w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1.0, 1000.0), vector3df(1.0, 1.0, 0.8)));

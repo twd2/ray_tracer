@@ -35,7 +35,7 @@ public:
     vector3df diffuse = vector3df(0.0, 1.0, 5.0);
     vector3df ambient, specular = vector3df(0.5, 0.5, 0.5);
     vector3df transparency = vector3df::zero;
-    double shininess = 16.0, reflectiveness = 0.2, refractiveness;
+    double shininess = 16.0, reflectiveness = 0.0, refractiveness = 0.0;
     double refractive_index = 1.0; // Refractive index.
 
     // First intersection.

@@ -18,6 +18,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         return vector3df::zero;
     }
 
+    // Phong
     vector3df Id = vector3df::zero, Is = vector3df::zero;
     for (auto &light_ptr : w.lights)
     {
@@ -41,9 +42,28 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         }
     }
 
-    vector3df I = (Id + Is) * (1 - ir.obj.reflectiveness);
-    vector3df Ir = ray_trace(ray(ir.result.p, r.direction.reflect(ir.result.n)), contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
-    I = I + Ir;
+    vector3df I = Id + Is;
+
+    if (ir.obj.reflectiveness > eps)
+    {
+        I = I * (1 - ir.obj.reflectiveness);
+        vector3df Ireflect = ray_trace(ray(ir.result.p, r.direction.reflect(ir.result.n)), contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
+        I = I + Ireflect;
+    }
+
+    if (ir.obj.refractiveness > eps)
+    {
+        //I = I * (1 - ir.obj.refractiveness);
+        double n_r = ir.obj.refractive_index;
+        if (ir.result.n.dot(r.direction) >= eps)
+        {
+            n_r = 1.0;
+        }
+        vector3df Irefract =
+            ray_trace(ray(ir.result.p, r.direction.refract(ir.result.n, r.refractive_index, n_r), n_r),
+                      contribution * ir.obj.refractiveness) * ir.obj.refractiveness;
+        I = I + Irefract;
+    }
 
     return I.capped();
 }
