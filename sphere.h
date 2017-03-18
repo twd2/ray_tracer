@@ -10,7 +10,7 @@ class sphere
 {
 public:
     const vector3df c;
-    const double r, r2;
+    const double r, r2; // radius and its squared
 
     sphere(const vector3df &c, double r)
         : object(), c(c), r(r), r2(r * r)
@@ -18,7 +18,8 @@ public:
 
     }
 
-    intersect_result intersect(const ray &r) override;
+    intersect_result intersect(const ray &r) const override;
+    std::vector<intersect_result> intersect_all(const ray &r) const override;
 };
 
 

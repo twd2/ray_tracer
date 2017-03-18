@@ -51,6 +51,9 @@
     <ClCompile Include="world.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="point_light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -90,6 +93,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="world.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="point_light.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

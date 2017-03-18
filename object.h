@@ -1,6 +1,8 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
+#include <vector>
+
 #include "ray.h"
 #include "vector3d.hpp"
 
@@ -32,13 +34,29 @@ public:
 class object
 {
 public:
-    coeff_t transparent_coeff = 0.0;
-    coeff_t refract_coeff = 1.0; // Refractive index.
+    vector3df diffuse = vector3df(0.0, 1.0, 5.0);
+    vector3df ambient, specular;
+    vector3df transparency = vector3df::zero;
+    coeff_t reflectiveness, refractiveness;
+    coeff_t refractive_index = 1.0; // Refractive index.
 
     // First intersection.
-    virtual intersect_result intersect(const ray &r)
+    virtual intersect_result intersect(const ray &r) const
     {
         return intersect_result::failed;
+    }
+
+    virtual std::vector<intersect_result> intersect_all(const ray &r) const
+    {
+        intersect_result ir = intersect(r);
+        if (ir.succeeded)
+        {
+            return std::vector<intersect_result> { ir };
+        }
+        else
+        {
+            return std::vector<intersect_result>();
+        }
     }
 
     static object dummy;

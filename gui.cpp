@@ -25,6 +25,7 @@ void init_gl(int width, int height)
 
 void update_fps(GLFWwindow *window)
 {
+    return;
     static double last_time = glfwGetTime();
     static int last_fps = 0;
     double current_time = glfwGetTime();

@@ -18,7 +18,7 @@ public:
         
     }
 
-    intersect_result intersect(const ray &r) override;
+    intersect_result intersect(const ray &r) const override;
 };
 
 #endif // _PLANE_H_

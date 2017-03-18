@@ -33,7 +33,7 @@ public:
 
     }
 
-    vector3df ray_trace(const ray &r) const;
+    vector3df ray_trace(const ray &r, const vector3df &contribution) const;
     void render(image &img) const;
 };
 

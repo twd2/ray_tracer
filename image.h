@@ -72,6 +72,11 @@ public:
         return *reinterpret_cast<color_t *>(&(*raw)[y * row_size + x * bit_depth / 8]);
     }
 
+    const color_t &operator()(size_t x, size_t y) const
+    {
+        return *reinterpret_cast<const color_t *>(&(*raw)[y * row_size + x * bit_depth / 8]);
+    }
+
     uint32_t &as_int(size_t x, size_t y)
     {
         return *reinterpret_cast<uint32_t *>(&(*raw)[y * row_size + x * bit_depth / 8]);

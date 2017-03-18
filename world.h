@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "object.h"
+#include "light.h"
 
 class world_intersect_result
 {
@@ -28,12 +29,16 @@ public:
     static const world_intersect_result failed;
 };
 
+class light;
+
 class world
 {
 private:
     std::vector<std::shared_ptr<object> > _objects;
 
 public:
+    std::vector<std::shared_ptr<light> > lights;
+
     world()
     {
 
@@ -60,7 +65,7 @@ public:
         _objects.erase(_objects.begin() + i);
     }
 
-    std::vector<world_intersect_result> intersect_multi(const ray &r);
+    std::vector<world_intersect_result> intersect_all(const ray &r);
     world_intersect_result intersect(const ray &r);
 };
 

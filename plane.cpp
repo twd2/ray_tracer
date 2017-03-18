@@ -7,17 +7,17 @@
 #include "ray.h"
 #include "vector3d.hpp"
 
-intersect_result plane::intersect(const ray &r)
+intersect_result plane::intersect(const ray &r) const
 {
     double divisor = n.dot(r.direction);
-    if (divisor == 0.0)
+    if (divisor <= eps && divisor >= -eps)
     {
         return intersect_result::failed;
     }
 
     double t = -(D + n.dot(r.location)) / divisor;
 
-    if (t < 0)
+    if (t <= eps)
     {
         return intersect_result::failed;
     }

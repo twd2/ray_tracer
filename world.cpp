@@ -5,13 +5,13 @@
 
 const world_intersect_result world_intersect_result::failed(false);
 
-std::vector<world_intersect_result> world::intersect_multi(const ray &r)
+std::vector<world_intersect_result> world::intersect_all(const ray &r)
 {
     std::vector<world_intersect_result> results;
     for (auto &o_ptr : _objects)
     {
-        intersect_result ir = o_ptr->intersect(r);
-        if (ir.succeeded)
+        std::vector<intersect_result> obj_results = o_ptr->intersect_all(r);
+        for (auto &ir : obj_results)
         {
             results.push_back(world_intersect_result(*o_ptr, ir));
         }
@@ -21,29 +21,28 @@ std::vector<world_intersect_result> world::intersect_multi(const ray &r)
 
 world_intersect_result world::intersect(const ray &r)
 {
-    std::vector<world_intersect_result> results = intersect_multi(r);
-    if (results.size() == 0)
-    {
-        return world_intersect_result::failed;
-    }
+    object *closest_obj = nullptr;
+    intersect_result closest_result = intersect_result::failed;
 
-    if (results.size() == 1)
+    for (auto &o_ptr : _objects)
     {
-        return results[0];
-    }
-
-    world_intersect_result *result_ptr = &results[0];
-    double min_distance = results[0].result.distance;
-
-    for (std::size_t i = 1; i < results.size(); ++i)
-    {
-        double distance = results[i].result.distance;
-        if (distance < min_distance)
+        intersect_result ir = o_ptr->intersect(r);
+        if (ir.succeeded)
         {
-            min_distance = distance;
-            result_ptr = &results[i];
+            if (!closest_obj || (closest_obj && ir.distance < closest_result.distance))
+            {
+                closest_obj = o_ptr.get();
+                closest_result = ir;
+            }
         }
     }
 
-    return *result_ptr;
+    if (closest_obj)
+    {
+        return world_intersect_result(*closest_obj, closest_result);
+    }
+    else
+    {
+        return world_intersect_result::failed;
+    }
 }
