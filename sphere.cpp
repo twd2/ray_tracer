@@ -59,7 +59,7 @@ std::vector<intersect_result> sphere::intersect_all(const ray &r) const
     vector3df r_c = r.location - c;
     double B = r.direction.dot(r_c), C = r_c.length2() - r2; // t^2 + 2Bt + C = 0
     double delta2 = B * B - C;
-    if (delta2 <= eps)
+    if (delta2 <= eps2)
     {
         return std::vector<intersect_result>();
     }

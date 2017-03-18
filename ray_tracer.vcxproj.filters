@@ -54,6 +54,12 @@
     <ClCompile Include="point_light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="parallel_light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="triangle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -96,6 +102,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="point_light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="parallel_light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

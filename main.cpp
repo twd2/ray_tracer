@@ -14,7 +14,9 @@
 #include "camera.h"
 #include "plane.h"
 #include "sphere.h"
+#include "triangle.h"
 #include "point_light.h"
+#include "parallel_light.h"
 #include "gui.h"
 
 #ifndef M_PI
@@ -65,15 +67,26 @@ int main(int argc, char **argv)
     /*w.add_object(std::make_shared<plane>(vector3df(400.0, 300.0, -1.0),
                                          vector3df(0.5, 1.0, -1.0).normalize()));
     w.get_object(0).diffuse = vector3df(0.5, 0.9, 0.5);*/
-    w.add_object(std::make_shared<plane>(vector3df(0.0, -1000.0, 0.0),
-                                         vector3df(0.0, 1.0, 0.0).normalize()));
+    w.add_object(std::make_shared<plane>(
+        vector3df(0.0, -1000.0, 0.0),
+        vector3df(0.0, 1.0, 0.0).normalize()));
     w.get_object(0).diffuse = vector3df(0.5, 0.5, 0.9);
     w.add_object(std::make_shared<sphere>(vector3df(0.0, 0.0, -900.0), 500.0));
+    w.add_object(std::make_shared<sphere>(vector3df(-1000.0, -800.0, -600.0), 10.0));
+    w.add_object(std::make_shared<sphere>(vector3df(-850.0, -850.0, -400.0), 20.0));
+    w.add_object(std::make_shared<sphere>(vector3df(-700.0, -900.0, -600.0), 30.0));
+    w.get_object(2).diffuse = vector3df(0.5, 0.5, 0.5);
+    w.get_object(3).diffuse = vector3df(0.5, 0.5, 0.5);
+    w.get_object(4).diffuse = vector3df(0.5, 0.5, 0.5);
+    w.add_object(std::make_shared<triangle>(
+        vector3df(-1000.0, -800.0, -600.0),
+        vector3df(-850.0, -850.0, -400.0),
+        vector3df(-700.0, -900.0, -600.0)));
+    w.get_object(5).diffuse = vector3df(0.5, 0.5, 0.5);
     //w.get_object(1).transparency = vector3df(0.5, 0.5, 0.5);
-    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 0.0, -900.0), vector3df(1.0, 1.0, 1.0)));
-    w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -2000.0), vector3df(1.0, 1.0, 1.0)));
-    w.lights.push_back(std::make_shared<point_light>(w, vector3df(-1000.0, 1500.0, -500.0), vector3df(1.0, 1.0, 1.0)));
-    w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, -500.0), vector3df(1.0, 1.0, 1.0)));
+    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 1.0)));
+    // w.lights.push_back(std::make_shared<point_light>(w, vector3df(-1000.0, 1500.0, -500.0), vector3df(1.0, 1.0, 1.0)));
+    // w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, -500.0), vector3df(1.0, 1.0, 1.0)));
 
     camera c(w, vector3df(0.0, 0.0, 1000));
         

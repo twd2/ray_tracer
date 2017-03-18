@@ -170,10 +170,12 @@
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="parallel_light.cpp" />
     <ClCompile Include="plane.cpp" />
     <ClCompile Include="point_light.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="triangle.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -185,10 +187,12 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="object.h" />
+    <ClInclude Include="parallel_light.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="point_light.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="triangle.h" />
     <ClInclude Include="vector3d.hpp" />
     <ClInclude Include="world.h" />
   </ItemGroup>
