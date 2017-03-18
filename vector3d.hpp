@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 
+// All direction vector should be normalized before use.
 template <typename T>
 class vector3d
 {
@@ -57,7 +58,7 @@ public:
 
     vector3d operator/(T a) const
     {
-		return vector3d(x / a, y / a, z / a);
+        return vector3d(x / a, y / a, z / a);
     }
 
     bool operator==(const vector3d &v2) const
@@ -87,12 +88,16 @@ public:
                         x * v2.y - v2.x * y);
     }
 
+    vector3d modulate(const vector3d &v2) const
+    {
+        return vector3d(x * v2.x, y * v2.y, z * v2.z);
+    }
+
     vector3d normalize() const
     {
         return (*this) / length();
     }
 
-    // n.length() should be 1.
     vector3d reflect(const vector3d &n) const
     {
         return (*this) - n.dot(*this) * 2 * n;
@@ -103,26 +108,26 @@ public:
         // TODO
     }
 
-    bool is_zero()
+    bool is_zero() const
     {
         return (*this) == zero; // TODO: float.
     }
 
-    static vector3d zero;
+    static const vector3d zero, right, up, back;
 };
 
 template <typename T>
-vector3d<T> vector3d<T>::zero(T(0), T(0), T(0));
-/*
-template <typename T>
-vector3d<T> vector3d<T>::x(T(1), T(0), T(0));
+const vector3d<T> vector3d<T>::zero(T(0), T(0), T(0));
 
 template <typename T>
-vector3d<T> vector3d<T>::y(T(0), T(1), T(0));
+const vector3d<T> vector3d<T>::right(T(1), T(0), T(0));
 
 template <typename T>
-vector3d<T> vector3d<T>::z(T(0), T(0), T(1));
-*/
+const vector3d<T> vector3d<T>::up(T(0), T(1), T(0));
+
+template <typename T>
+const vector3d<T> vector3d<T>::back(T(0), T(0), T(1));
+
 typedef vector3d<std::ptrdiff_t> vector3di;
 typedef vector3d<double> vector3df;
 

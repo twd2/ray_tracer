@@ -11,20 +11,21 @@ class world_intersect_result
 public:
     bool succeeded = false;
     object &obj;
-    vector3df p; // point
-    vector3df n; // normal vector
+    intersect_result result;
 
     explicit world_intersect_result(bool succeeded) // Failed.
-        : succeeded(succeeded), obj(object::dummy)
+        : succeeded(succeeded), obj(object::dummy), result(intersect_result::failed)
     {
 
     }
 
-    world_intersect_result(object &obj, const vector3df &p, const vector3df &n)
-        : succeeded(true), obj(obj), p(p), n(n)
+    world_intersect_result(object &obj, const intersect_result &result)
+        : succeeded(true), obj(obj), result(result)
     {
 
     }
+
+    static const world_intersect_result failed;
 };
 
 class world

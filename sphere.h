@@ -6,19 +6,19 @@
 #include "vector3d.hpp"
 
 class sphere
-	: public object
+    : public object
 {
 public:
-	const vector3df c;
-	const double r, r2;
+    const vector3df c;
+    const double r, r2;
 
-	sphere(const vector3df &c, double r)
-		: object(), c(c), r(r), r2(r * r)
-	{
+    sphere(const vector3df &c, double r)
+        : object(), c(c), r(r), r2(r * r)
+    {
 
-	}
+    }
 
-	intersect_result intersect(const ray &r) override;
+    intersect_result intersect(const ray &r) override;
 };
 
 

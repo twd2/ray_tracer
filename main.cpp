@@ -26,13 +26,13 @@ void save_image(const image &img, const std::string &filename)
 
 void test()
 {
-	vector3df v(-400, 300, 366);
-	vector3df vn = v.normalize();
+    vector3df v(-400, 300, 366);
+    vector3df vn = v.normalize();
 }
 
 int main(int argc, char **argv)
 {
-	test();
+    test();
 
     std::string filename = "test.png";
     if (argc >= 2)
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     camera c(w, vector3df(0.0, 0.0, 10.0));
     w.add_object(std::make_shared<plane>(vector3df(400.0, 300.0, -1.0),
                                          vector3df(0.5, 1.0, -1.0).normalize()));
-	w.add_object(std::make_shared<sphere>(vector3df(0.0, 0.0, -900.0), 500.0));
+    w.add_object(std::make_shared<sphere>(vector3df(0.0, 0.0, -900.0), 500.0));
 
     // Performance test.
     for (int N = 1; N <= 1; ++N)
