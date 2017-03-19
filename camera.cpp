@@ -68,7 +68,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 
     if (ir.obj.reflectiveness > eps)
     {
-        vector3df Ireflect = ray_trace(ray(ir.result.p, r.direction.reflect(ir.result.n)), contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
+        vector3df Ireflect = ray_trace(ray(ir.result.p, r.direction.reflect(ir.result.n), r.refractive_index), contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
         I = I + Ireflect;
     }
 
