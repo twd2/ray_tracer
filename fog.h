@@ -2,6 +2,7 @@
 #define _FOG_H_
 
 #include "object.h"
+#include "sphere.h"
 #include "ray.h"
 #include "vector3d.hpp"
 
@@ -9,9 +10,9 @@ class fog
     : public object
 {
 public:
-    object &boundary;
+    sphere &boundary;
 
-    fog(object &boundary)
+    fog(sphere &boundary)
         : object(), boundary(boundary)
     {
 

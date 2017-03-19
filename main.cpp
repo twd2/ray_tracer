@@ -15,6 +15,7 @@
 #include "plane.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "fog.h"
 #include "point_light.h"
 #include "parallel_light.h"
 #include "gui.h"
@@ -98,6 +99,15 @@ int main(int argc, char **argv)
         vector3df(-500.0, -1.0, -5000.0),
         vector3df(1000.0, -1.0, -5000.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
+
+    /*sphere boundary(vector3df(-1000.0, -500.0, -900.0), 5000.0);
+    object &fog1 = w.add_object(std::make_shared<fog>(boundary));
+    fog1.diffuse = vector3df::one * 0.5;
+    fog1.specular = vector3df(0.5, 0.5, 0.5);
+    fog1.shininess = 32.0;
+    fog1.refractiveness = vector3df::zero;
+    fog1.refractive_index = 1.5;
+    fog1.reflectiveness = 0.9;*/
 
     w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 600.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
