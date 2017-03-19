@@ -1,9 +1,12 @@
 #include <cstddef>
 #include <cstdio>
+#include <random>
 
 #include "camera.h"
 
 #include "light.h"
+
+static std::default_random_engine engine;
 
 vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 {
@@ -42,6 +45,23 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         }
     }
 
+   /* if (ir.obj.diffuse.length2() > eps2)
+    {
+        std::uniform_real_distribution<> dist(-1.0, 1.0);
+        vector3df k = ir.result.n;
+        vector3df i = k.cross(vector3df(dist(engine), dist(engine), dist(engine))).normalize();
+        vector3df j = k.cross(i);
+        const int diffuse_n = 2;
+        vector3df diffuseness = ir.obj.diffuse / diffuse_n;
+        for (int a = 0; a < diffuse_n; ++a)
+        {
+            vector3df v = i * dist(engine) + j * dist(engine) + k * ((dist(engine) + 1.0) / 2.0);
+            double N_dot_V = v.dot(ir.result.n);
+            Id = Id + ray_trace(ray(ir.result.p, v), contribution.modulate(diffuseness * N_dot_V)).modulate(diffuseness * N_dot_V);
+        }
+    }*/
+
+
     vector3df I = Id + Is;
 
     I = I * ((1 - ir.obj.reflectiveness) /** (1 - ir.obj.refractiveness)*/);
@@ -57,6 +77,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         double n_r = ir.obj.refractive_index;
         if (ir.result.n.dot(r.direction) >= eps)
         {
+            // TODO
             n_r = 1.0;
         }
         vector3df Irefract =
@@ -78,10 +99,6 @@ void camera::render(image &img) const
     {
         for (std::ptrdiff_t x = 0; x < img.width; ++x)
         {
-            //if (x == 181 && y == 547)
-            //{
-            //    printf("here.");
-            //}
             const std::ptrdiff_t world_x = x, world_y = img.height - y - 1;
             const ray r = 
                 ray(location,

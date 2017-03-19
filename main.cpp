@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 600.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8)));
-    w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 1000.0), vector3df(1.0, 1.0, 0.8) * 0.2));
+    w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 100.0), vector3df(1.0, 1.0, 0.8) * 0.2));
 
     camera c(w, vector3df(0.0, 0.0, 1000.0));
         
