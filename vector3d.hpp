@@ -4,6 +4,10 @@
 #include <cmath>
 #include <cstddef>
 
+#ifndef M_PI
+#define M_PI 3.141592653587979
+#endif
+
 const double eps = 1e-6;
 const double eps2 = eps * eps;
 

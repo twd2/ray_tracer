@@ -44,14 +44,10 @@ public:
 
     }
 
-    void add_object(const std::shared_ptr<object> &o_ptr)
+    object &add_object(const std::shared_ptr<object> &o_ptr)
     {
         _objects.push_back(o_ptr);
-    }
-
-    void add_object(std::shared_ptr<object> &&o_ptr)
-    {
-        _objects.push_back(std::move(o_ptr));
+        return *o_ptr;
     }
 
     object &get_object(std::size_t i)

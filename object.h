@@ -34,8 +34,8 @@ class object
 public:
     vector3df diffuse = vector3df(0.0, 1.0, 5.0);
     vector3df ambient, specular = vector3df(0.5, 0.5, 0.5);
-    vector3df transparency = vector3df::zero;
-    double shininess = 16.0, reflectiveness = 0.0, refractiveness = 0.0;
+    double shininess = 16.0, reflectiveness = 0.0;
+    vector3df refractiveness = vector3df::zero;
     double refractive_index = 1.0; // Refractive index.
 
     // First intersection.
@@ -55,6 +55,11 @@ public:
         {
             return std::vector<intersect_result>();
         }
+    }
+
+    virtual ~object()
+    {
+
     }
 
     static object dummy;

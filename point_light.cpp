@@ -10,7 +10,7 @@ light_info point_light::illuminate(const vector3df &p) const
     direction = direction / distance; // normalize
 
     std::vector<world_intersect_result> results = w.intersect_all(ray(p, direction));
-    vector3df coeff = vector3df(1.0, 1.0, 1.0);
+    vector3df coeff = vector3df::one;
     for (auto &ir : results)
     {
         if (ir.result.distance >= distance)
@@ -23,12 +23,12 @@ light_info point_light::illuminate(const vector3df &p) const
             continue;
         }
 
-        if (ir.obj.transparency == vector3df::zero)
+        if (ir.obj.refractiveness.length2() <= eps2)
         {
             return light_info::dark;
         }
 
-        coeff = coeff.modulate(ir.obj.transparency);
+        coeff = coeff.modulate(ir.obj.refractiveness);
     }
     return light_info(color.modulate(coeff), -direction);
 }

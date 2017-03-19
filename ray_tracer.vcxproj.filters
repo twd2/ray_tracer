@@ -60,6 +60,9 @@
     <ClCompile Include="triangle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="fog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -108,6 +111,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="triangle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="fog.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
