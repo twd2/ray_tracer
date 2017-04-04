@@ -82,6 +82,14 @@ int main(int argc, char **argv)
     magic2.refractive_index = 1.333;
     magic2.reflectiveness = 0.05;
 
+    object &magic3 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, 250.0, -900.0), 150.0));
+    magic3.diffuse = vector3df::zero;
+    magic3.specular = vector3df::one * 0.2;
+    magic3.shininess = 32.0;
+    magic3.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    magic3.refractive_index = 1.5;
+    magic3.reflectiveness = 0.05;
+
     w.add_object(std::make_shared<sphere>(vector3df(-1600.0, -400.0, -900.0), 200.0));
     object &small1 = w.add_object(std::make_shared<sphere>(vector3df(-1000.0, -500.0, -600.0), 10.0));
     object &small2 = w.add_object(std::make_shared<sphere>(vector3df(-850.0, -850.0, -400.0), 20.0));

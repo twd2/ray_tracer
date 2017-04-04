@@ -47,7 +47,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 
     if (ir.obj.diffuse.length2() > eps2)
     {
-        std::uniform_real_distribution<> dist(-1.0, 1.0);
+        /*std::uniform_real_distribution<> dist(-1.0, 1.0);
         vector3df k = ir.result.n;
         vector3df i = k.cross(vector3df(dist(engine), dist(engine), dist(engine))).normalize();
         vector3df j = k.cross(i);
@@ -62,7 +62,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
             Id2 = Id2 + ray_trace(ray(ir.result.p, v, r.refractive_index),
                                   vector3df::one * (100.0 * eps)).modulate(coeff);
         }
-        Id = Id + Id2;
+        Id = Id + Id2;*/
     }
 
 
