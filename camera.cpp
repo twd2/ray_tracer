@@ -72,20 +72,23 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 
     if (ir.obj.reflectiveness > eps)
     {
-        vector3df Ireflect = ray_trace(ray(ir.result.p, r.direction.reflect(ir.result.n), r.refractive_index), contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
+        vector3df Ireflect = ray_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
+                                       contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
         I = I + Ireflect;
     }
 
     if (ir.obj.refractiveness.length2() > eps2)
     {
         double n_r = ir.obj.refractive_index;
-        if (ir.result.n.dot(r.direction) >= eps)
+        bool in_out = ray::in;
+        if (ir.result.n.dot(r.direction) >= eps) // out
         {
-            // TODO
-            n_r = 1.0;
+            in_out = ray::out;
+            n_r = r.last_refractive_index();
         }
+        vector3df new_direction = r.direction.refract(ir.result.n, r.refractive_index, n_r);
         vector3df Irefract =
-            ray_trace(ray(ir.result.p, r.direction.refract(ir.result.n, r.refractive_index, n_r), n_r),
+            ray_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
                       contribution.modulate(ir.obj.refractiveness)).modulate(ir.obj.refractiveness);
         I = I + Irefract;
     }
