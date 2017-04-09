@@ -81,7 +81,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
     {
         double n_r = ir.obj.refractive_index;
         bool in_out = ray::in;
-        if (ir.result.n.dot(r.direction) >= eps) // out
+        if (ir.result.n.dot(r.direction) >= -eps) // out
         {
             in_out = ray::out;
             n_r = r.last_refractive_index();
