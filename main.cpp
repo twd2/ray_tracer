@@ -108,7 +108,7 @@ int main(int argc, char **argv)
         vector3df(-1000.0, -500.0, -600.0),
         vector3df(-850.0, -850.0, -400.0),
         vector3df(-700.0, -900.0, -700.0))));
-    tri1.diffuse = vector3df(0.5, 0.5, 0.5);
+    tri1.diffuse = vector3df::zero;
     tri1.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
     tri1.refractive_index = 1.333;
     tri1.reflectiveness = 0.05;
@@ -135,19 +135,19 @@ int main(int argc, char **argv)
     mirror.specular = vector3df::one * 0.9;
     mirror.diffuse = vector3df::zero;
 
-    //w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
+    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 600.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8) * 0.9));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 100.0), vector3df(1.0, 1.0, 0.8) * 0.9));
 
-    for (int j = 0; j < 8; ++j)
+    /*for (int j = 0; j < 8; ++j)
     {
         for (int i = 0; i < 8; ++i)
         {
             w.lights.push_back(std::make_shared<point_light>(w, vector3df(i * 20, 1000.0, 100.0 - j * 20), vector3df(1.0, 1.0, 0.8) * 0.02));
         }
-    }
+    }*/
 
     camera c(w, vector3df(0.0, 0.0, 1000.0));
         
