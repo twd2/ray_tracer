@@ -87,10 +87,20 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
             n_r = r.last_refractive_index();
         }
         vector3df new_direction = r.direction.refract(ir.result.n, r.refractive_index, n_r);
-        vector3df Irefract =
-            ray_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
-                      contribution.modulate(ir.obj.refractiveness)).modulate(ir.obj.refractiveness);
-        I = I + Irefract;
+        if (new_direction != vector3df::zero)
+        {
+            vector3df Irefract =
+                ray_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
+                    contribution.modulate(ir.obj.refractiveness)).modulate(ir.obj.refractiveness);
+            I = I + Irefract;
+        }
+        else // total reflection
+        {
+            // TODO: refactor
+            vector3df Ireflect = ray_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
+                contribution.modulate(ir.obj.refractiveness)).modulate(ir.obj.refractiveness);
+            I = I + Ireflect;
+        }
     }
 
     return I.capped();

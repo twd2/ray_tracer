@@ -73,6 +73,11 @@ public:
         return x == v2.x && y == v2.y && z == v2.z;
     }
 
+    bool operator!=(const vector3d &v2) const
+    {
+        return !(*this == v2);
+    }
+
     T dot(const vector3d &v2) const
     {
         return x * v2.x + y * v2.y + z * v2.z;
@@ -115,7 +120,12 @@ public:
         T i_dot_n = this->dot(n);
         T cosi2 = i_dot_n * i_dot_n / (this->length2() * n.length2());
         double n_i_n_r = n_i / n_r;
-        T cosr = sqrt(1.0 - n_i_n_r * n_i_n_r * (1 - cosi2));
+        T cosr2 = 1.0 - n_i_n_r * n_i_n_r * (1 - cosi2);
+        if (cosr2 < eps)
+        {
+            return zero;
+        }
+        T cosr = sqrt(cosr2);
         if (i_dot_n >= eps)
         {
             cosr = -cosr;
