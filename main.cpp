@@ -63,7 +63,7 @@ void test_bezier()
 int main(int argc, char **argv)
 {
     test_bezier();
-    return 0;
+    // return 0;
 
     std::string filename = "test.png";
     if (argc >= 2)
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     magic3.refractive_index = 1.5;
     magic3.reflectiveness = 0.9;
 
-    object &magic4 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, 250.0, -900.0), 100.0));
+    object &magic4 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, 200.0, -900.0), 50.0));
     magic4.diffuse = vector3df::zero;
     magic4.specular = vector3df::one * 0.2;
     magic4.shininess = 32.0;
@@ -143,9 +143,9 @@ int main(int argc, char **argv)
     object &mirror = w.add_object(std::make_shared<plane>(
         vector3df(0.0, 0.0, -6000.0),
         vector3df(0.0, -0.1, 1.0).normalize()));
-    mirror.reflectiveness = 0.9;
-    mirror.specular = vector3df::one * 0.9;
-    mirror.diffuse = vector3df::zero;
+    mirror.reflectiveness = 0.05;
+    mirror.specular = vector3df::one * 0.5;
+    mirror.diffuse = vector3df(0.25, 0.25, 0.75); // vector3df::zero;
 
     /*object &floor = w.add_object(std::make_shared<plane>(
         vector3df(0.0, -400.0, 0.0),
@@ -188,6 +188,6 @@ int main(int argc, char **argv)
     save_image(img, filename);
     save_image(out, "ssaa_" + filename);
     // save_image(img, to_string(10 - i) + ".png");
-    show_image(img);
+    // show_image(img);
     return 0;
 }

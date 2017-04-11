@@ -2,6 +2,7 @@
 
 vector3df bezier_surface::get_point(double u, double v)
 {
+    // de Casteljau's algorithm
     bezier_surface p = *this; // copy, k, l = 0
     // k = 1, ..., m, l = 0
     for (std::size_t k = 1; k < width; ++k)
