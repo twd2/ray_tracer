@@ -133,9 +133,9 @@ void camera::render(image &img) const
             const std::ptrdiff_t world_x = x, world_y = img.height - y - 1;
             const ray r = 
                 ray(location,
-                    vector3df((double)(world_x - half_width),
-                              (double)(world_y - half_height),
-                              (double)(-d)).normalize());
+                    vector3df(right * (double)(world_x - half_width) +
+                              up * (double)(world_y - half_height) +
+                              front * (double)(d)).normalize());
             vector3df color_float = ray_trace(r, vector3df(1.0, 1.0, 1.0)) * 255;
             img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
         }

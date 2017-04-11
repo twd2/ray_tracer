@@ -171,7 +171,7 @@ int main(int argc, char **argv)
         }
     }*/
 
-    camera c(w, vector3df(0.0, 0.0, 1000.0));
+    camera c(w, vector3df(0.0, 0.0, 1000.0), vector3df(0.0, 0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
         
     // Performance test.
     for (int N = 1; N <= 1; ++N)
