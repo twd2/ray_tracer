@@ -70,12 +70,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 
     I = I * ((1 - ir.obj.reflectiveness) /** (1 - ir.obj.refractiveness)*/);
 
-    if (ir.obj.reflectiveness > eps)
-    {
-        vector3df Ireflect = ray_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
-                                       contribution * ir.obj.reflectiveness) * ir.obj.reflectiveness;
-        I = I + Ireflect;
-    }
+    vector3df reflectiveness = vector3df::one * ir.obj.reflectiveness;
 
     if (ir.obj.refractiveness.length2() > eps2)
     {
@@ -86,21 +81,40 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
             in_out = ray::out;
             n_r = r.last_refractive_index();
         }
-        vector3df new_direction = r.direction.refract(ir.result.n, r.refractive_index, n_r);
+
+        const double n_i = r.refractive_index;
+        double cosi, cosr;
+        vector3df new_direction = r.direction.refract(ir.result.n, n_i, n_r,
+                                                      cosi, cosr);
         if (new_direction != vector3df::zero)
         {
+            double Rs = (n_i * cosi - n_r * cosr) / (n_i * cosi + n_r * cosr);
+            Rs *= Rs;
+            double Rp = (n_i * cosr - n_r * cosi) / (n_i * cosr + n_r * cosi);
+            Rp *= Rp;
+            double R = (Rs + Rp) / 2.0;
+            double T = 1 - (Rs + Rp) / 2.0;
+
+            vector3df refractiveness = ir.obj.refractiveness;
+            refractiveness = refractiveness * T;
+            reflectiveness = reflectiveness * R;
+
             vector3df Irefract =
                 ray_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
-                    contribution.modulate(ir.obj.refractiveness)).modulate(ir.obj.refractiveness);
+                    contribution.modulate(refractiveness)).modulate(refractiveness);
             I = I + Irefract;
         }
         else // total reflection
         {
-            // TODO: refactor
-            vector3df Ireflect = ray_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
-                contribution.modulate(ir.obj.refractiveness)).modulate(ir.obj.refractiveness);
-            I = I + Ireflect;
+            //reflectiveness = reflectiveness + ir.obj.refractiveness;
         }
+    }
+
+    if (reflectiveness.length2() > eps2)
+    {
+        vector3df Ireflect = ray_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
+            contribution.modulate(reflectiveness)).modulate(reflectiveness);
+        I = I + Ireflect;
     }
 
     return I.capped();

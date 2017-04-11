@@ -133,6 +133,25 @@ public:
         return ((*this) * n_i_n_r - n * (n_i_n_r * i_dot_n + cosr)).normalize();
     }
 
+    vector3d refract(const vector3d &n, double n_i, double n_r, double &out_cosi, double &out_cosr) const
+    {
+        T i_dot_n = this->dot(n);
+        T cosi2 = i_dot_n * i_dot_n / (this->length2() * n.length2());
+        out_cosi = sqrt(cosi2);
+        double n_i_n_r = n_i / n_r;
+        T cosr2 = 1.0 - n_i_n_r * n_i_n_r * (1 - cosi2);
+        if (cosr2 < eps)
+        {
+            return zero;
+        }
+        T cosr = out_cosr = sqrt(cosr2);
+        if (i_dot_n >= eps)
+        {
+            cosr = -cosr;
+        }
+        return ((*this) * n_i_n_r - n * (n_i_n_r * i_dot_n + cosr)).normalize();
+    }
+
     vector3d capped() const
     {
         vector3d result = *this;
