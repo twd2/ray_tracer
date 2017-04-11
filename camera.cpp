@@ -139,6 +139,7 @@ void camera::render(image &img) const
             vector3df color_float = ray_trace(r, vector3df(1.0, 1.0, 1.0)) * 255;
             img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
         }
-        printf("%lf%%\n", (double)(y + 1) * 100.0 / img.height);
+        printf("\rRendering... %5.2lf%%", (double)(y + 1) * 100.0 / img.height);
     }
+    printf("\n");
 }
