@@ -19,6 +19,8 @@
 #include "point_light.h"
 #include "parallel_light.h"
 #include "gui.h"
+#include "bezier_surface.h"
+#include "mesh.h"
 
 void save_image(const image &img, const std::string &filename)
 {
@@ -51,8 +53,18 @@ std::string to_string(int i)
     return str;
 }
 
+void test_bezier()
+{
+    bezier_surface bezier = bezier_surface::load("bezier.txt");
+    mesh m = bezier.to_mesh(0.01, 0.01);
+    m.save("test.obj");
+}
+
 int main(int argc, char **argv)
 {
+    test_bezier();
+    return 0;
+
     std::string filename = "test.png";
     if (argc >= 2)
     {
