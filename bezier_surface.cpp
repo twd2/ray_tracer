@@ -1,6 +1,6 @@
 #include "bezier_surface.h"
 
-vector3df bezier_surface::get_point(double u, double v)
+vector3df bezier_surface::get_point(double u, double v) const
 {
     // de Casteljau's algorithm
     bezier_surface p = *this; // copy, k, l = 0
@@ -27,7 +27,7 @@ vector3df bezier_surface::get_point(double u, double v)
     return p(0, 0);
 }
 
-mesh bezier_surface::to_mesh(double du, double dv)
+mesh bezier_surface::to_mesh(double du, double dv) const
 {
     mesh result;
 

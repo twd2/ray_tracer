@@ -34,8 +34,8 @@ public:
         return data[y * width + x];
     }
 
-    vector3df get_point(double u, double v);
-    mesh to_mesh(double du, double dv);
+    vector3df get_point(double u, double v) const;
+    mesh to_mesh(double du, double dv) const;
 
     static bezier_surface load(const std::string &filename);
 };

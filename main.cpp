@@ -20,6 +20,7 @@
 #include "parallel_light.h"
 #include "gui.h"
 #include "bezier_surface.h"
+#include "bezier_curve.h"
 #include "mesh.h"
 
 void save_image(const image &img, const std::string &filename)
@@ -55,15 +56,20 @@ std::string to_string(int i)
 
 void test_bezier()
 {
-    bezier_surface bezier = bezier_surface::load("bezier.txt");
-    mesh m = bezier.to_mesh(0.01, 0.01);
-    m.save("test.obj");
+    bezier_surface bs = bezier_surface::load("bezier_surface.txt");
+    mesh m1 = bs.to_mesh(0.01, 0.01);
+    m1.save("bs.obj");
+    printf("bezier_surface\n");
+    bezier_curve bc = bezier_curve::load("bezier_curve.txt");
+    mesh m2 = bc.to_rotate_surface_mesh(0.01, 3.6);
+    m2.save("bc.obj");
+    printf("bezier_curve\n");
 }
 
 int main(int argc, char **argv)
 {
     test_bezier();
-    // return 0;
+    return 0;
 
     std::string filename = "test.png";
     if (argc >= 2)
