@@ -74,11 +74,11 @@ int main(int argc, char **argv)
     image img(800, 600);
     world w;
     object &ground = w.add_object(std::make_shared<plane>(
-        vector3df(0.0, -1000.0, 0.0),
+        vector3df(0.0, -100.0, 0.0),
         vector3df(0.0, 1.0, 0.1).normalize()));
     ground.diffuse = vector3df(0.8, 0.8, 1.0) * 0.9;
 
-    object &magic1 = w.add_object(std::make_shared<sphere>(vector3df(700.0, 250.0, -900.0), 300.0));
+    object &magic1 = w.add_object(std::make_shared<sphere>(vector3df(70.0, 25.0, -220.0), 60.0));
     magic1.diffuse = vector3df::zero;
     magic1.specular = vector3df::one * 0.2;
     magic1.shininess = 32.0;
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     magic1.refractive_index = 1.333;
     magic1.reflectiveness = 0.99;
 
-    object &magic2 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, 250.0, -900.0), 600.0));
+    object &magic2 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 25.0, -90.0), 60.0));
     magic2.diffuse = vector3df::zero;
     magic2.specular = vector3df::one * 0.2;
     magic2.shininess = 128.0;
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     magic2.refractive_index = 1.333;
     magic2.reflectiveness = 0.99;
 
-    object &magic3 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, 250.0, -900.0), 300.0));
+    object &magic3 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 25.0, -90.0), 30.0));
     magic3.diffuse = vector3df::zero;
     magic3.specular = vector3df::one * 0.2;
     magic3.shininess = 32.0;
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     magic3.refractive_index = 1.5;
     magic3.reflectiveness = 0.9;
 
-    object &magic4 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, 200.0, -900.0), 50.0));
+    object &magic4 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 20.0, -90.0), 5.0));
     magic4.diffuse = vector3df::zero;
     magic4.specular = vector3df::one * 0.2;
     magic4.shininess = 32.0;
@@ -110,25 +110,25 @@ int main(int argc, char **argv)
     magic4.refractive_index = 1.0;
     magic4.reflectiveness = 0.9;
 
-    w.add_object(std::make_shared<sphere>(vector3df(-1600.0, -400.0, -900.0), 200.0));
-    object &small1 = w.add_object(std::make_shared<sphere>(vector3df(-1000.0, -500.0, -600.0), 10.0));
-    object &small2 = w.add_object(std::make_shared<sphere>(vector3df(-850.0, -850.0, -400.0), 20.0));
-    object &small3 = w.add_object(std::make_shared<sphere>(vector3df(-700.0, -900.0, -700.0), 30.0));
+    w.add_object(std::make_shared<sphere>(vector3df(-160.0, -40.0, -90.0), 20.0));
+    object &small1 = w.add_object(std::make_shared<sphere>(vector3df(-100.0, -50.0, -60.0), 1.0));
+    object &small2 = w.add_object(std::make_shared<sphere>(vector3df(-85.0, -85.0, -40.0), 2.0));
+    object &small3 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, -90.0, -70.0), 3.0));
     small1.diffuse = small2.diffuse = small3.diffuse = vector3df(0.5, 0.5, 0.5);
 
     triangle &tri1 = static_cast<triangle &>(w.add_object(std::make_shared<triangle>(
-        vector3df(-1000.0, -500.0, -600.0),
-        vector3df(-850.0, -850.0, -400.0),
-        vector3df(-700.0, -900.0, -700.0))));
+        vector3df(-100.0, -50.0, -60.0),
+        vector3df(-85.0, -85.0, -40.0),
+        vector3df(-70.0, -90.0, -70.0))));
     tri1.diffuse = vector3df::zero;
     tri1.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
     tri1.refractive_index = 1.333;
     tri1.reflectiveness = 0.9;
 
     object &tri2 = w.add_object(std::make_shared<triangle>(
-        vector3df(0.0, 501.0, -5000.0),
-        vector3df(-500.0, -1.0, -5000.0),
-        vector3df(1000.0, -1.0, -5000.0)));
+        vector3df(0.0, 50.1, -500.0),
+        vector3df(-50.0, -0.1, -500.0),
+        vector3df(100.0, -0.1, -500.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     /*sphere boundary(vector3df(-1000.0, -500.0, -900.0), 5000.0);
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     fog1.reflectiveness = 0.9;*/
 
     object &mirror = w.add_object(std::make_shared<plane>(
-        vector3df(0.0, 0.0, -6000.0),
+        vector3df(0.0, 0.0, -600.0),
         vector3df(0.0, -0.1, 1.0).normalize()));
     mirror.reflectiveness = 0.05;
     mirror.specular = vector3df::one * 0.5;
@@ -163,15 +163,18 @@ int main(int argc, char **argv)
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8) * 0.9));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 100.0), vector3df(1.0, 1.0, 0.8) * 0.9));
 
-    /*for (int j = 0; j < 8; ++j)
+    /*std::size_t light_samples = 4;
+    double light_samples2 = light_samples * light_samples;
+    for (int j = 0; j < light_samples; ++j)
     {
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < light_samples; ++i)
         {
-            w.lights.push_back(std::make_shared<point_light>(w, vector3df(i * 20, 1000.0, 100.0 - j * 20), vector3df(1.0, 1.0, 0.8) * 0.02));
+            w.lights.push_back(std::make_shared<point_light>(w, vector3df(i * 2.0, 100.0, 10.0 - j * 2.0),
+                                                             vector3df(1.0, 1.0, 0.8) * (1.3 / light_samples2)));
         }
     }*/
 
-    camera c(w, vector3df(0.0, 0.0, 1000.0), vector3df(0.0, 0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
+    camera c(w, vector3df(0.0, 0.0, 147), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
         
     // Performance test.
     for (int N = 1; N <= 1; ++N)
@@ -183,11 +186,11 @@ int main(int argc, char **argv)
         }
     }
 
-    image out(400, 300);
+    image out(img.width / 2, img.height / 2);
     half_size(img, out);
     save_image(img, filename);
     save_image(out, "ssaa_" + filename);
     // save_image(img, to_string(10 - i) + ".png");
-    // show_image(img);
+    show_image(img);
     return 0;
 }

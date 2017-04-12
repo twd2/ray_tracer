@@ -10,7 +10,7 @@ static std::default_random_engine engine;
 
 vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 {
-    if (contribution.length2() <= eps)
+    if (contribution.length2() < eps)
     {
         return vector3df::zero;
     }
@@ -122,7 +122,8 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 
 void camera::render(image &img) const
 {
-    double d = img.width / double_tan_fov_x_2; // d = w / (2 * tan(fov / 2))
+    double aperture_samples2 = aperture_samples * aperture_samples;
+    double delta = (double)aperture / aperture_samples;
 
     // TODO: Parallelization.
     std::ptrdiff_t half_width = img.width / 2, half_height = img.height / 2;
@@ -131,15 +132,39 @@ void camera::render(image &img) const
         for (std::ptrdiff_t x = 0; x < img.width; ++x)
         {
             const std::ptrdiff_t world_x = x, world_y = img.height - y - 1;
-            const ray r = 
-                ray(location,
-                    vector3df(right * (double)(world_x - half_width) +
-                              up * (double)(world_y - half_height) +
-                              front * (double)(d)).normalize());
-            vector3df color_float = ray_trace(r, vector3df(1.0, 1.0, 1.0)) * 255;
+            vector3df color = vector3df::zero;
+            const vector3df d = right * (double)(world_x - half_width) +
+                                up * (double)(world_y - half_height) +
+                                front * (double)(focal_length);
+            if (aperture != 0.0)
+            {
+                const vector3df t = location + d;
+                // samples
+                vector3df o_y = location + up * (-aperture / 2.0) + right * (-aperture / 2.0);
+                for (std::ptrdiff_t sample_y = 0; sample_y < aperture_samples; ++sample_y)
+                {
+                    vector3df o = o_y;
+                    for (std::ptrdiff_t sample_x = 0; sample_x < aperture_samples; ++sample_x)
+                    {
+                        // o = location + right * (-aperture / 2.0 + sample_x * delta) +
+                        //                up * (-aperture / 2.0 + sample_y * delta)
+                        const ray r = ray(o, (t - o).normalize());
+                        color = color + ray_trace(r, vector3df::one / aperture_samples2) /
+                                        aperture_samples2;
+                        o = o + right * delta;
+                    }
+                    o_y = o_y + up * delta;
+                }
+            }
+            else // no depth of field
+            {
+                const ray r = ray(location, d.normalize());
+                color = ray_trace(r, vector3df::one);
+            }
+            vector3df color_float = color * 255;
             img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
         }
-        printf("\rRendering... %5.2lf%%", (double)(y + 1) * 100.0 / img.height);
+        fprintf(stderr, "\rRendering... %5.2lf%%", (double)(y + 1) * 100.0 / img.height);
     }
     printf("\n");
 }
