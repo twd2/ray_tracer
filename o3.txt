@@ -1,5 +1,0 @@
-Rendering... 100.00%bezier_surface
-bezier_curve
-
-./main  61.07s user 0.16s system 99% cpu 1:01.41 total
-tee o3.txt  0.00s user 0.00s system 0% cpu 1:01.41 total

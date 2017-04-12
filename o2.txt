@@ -1,3 +1,0 @@
-bezier_surface
-bezier_curve
-
