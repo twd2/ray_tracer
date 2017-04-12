@@ -69,7 +69,7 @@ void test_bezier()
 int main(int argc, char **argv)
 {
     test_bezier();
-    return 0;
+    // return 0;
 
     std::string filename = "test.png";
     if (argc >= 2)
