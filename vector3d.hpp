@@ -78,6 +78,11 @@ public:
         return !(*this == v2);
     }
 
+    vector3d &operator+=(const vector3d &v2)
+    {
+        return *this = *this + v2;
+    }
+
     T dot(const vector3d &v2) const
     {
         return x * v2.x + y * v2.y + z * v2.z;

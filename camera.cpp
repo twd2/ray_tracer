@@ -34,14 +34,14 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         double N_dot_L = li.direction.dot(-ir.result.n);
         if (N_dot_L >= eps)
         {
-            Id = Id + li.lightness.modulate(ir.obj.diffuse * N_dot_L);
+            Id += li.lightness.modulate(ir.obj.diffuse * N_dot_L);
         }
 
         vector3df R = -li.direction.reflect(ir.result.n);
         double R_dot_V = R.dot(r.direction);
         if (R_dot_V >= eps)
         {
-            Is = Is + li.lightness.modulate(ir.obj.specular * pow(R_dot_V, ir.obj.shininess));
+            Is += li.lightness.modulate(ir.obj.specular * pow(R_dot_V, ir.obj.shininess));
         }
     }
 
@@ -59,10 +59,10 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
             vector3df v = i * dist(engine) + j * dist(engine) + k * ((dist(engine) + 1.0) / 2.0);
             double N_dot_V = v.dot(ir.result.n);
             vector3df coeff = diffuseness * N_dot_V;
-            Id2 = Id2 + ray_trace(ray(ir.result.p, v, r.refractive_index),
-                                  vector3df::one * (100.0 * eps)).modulate(coeff);
+            Id2 += ray_trace(ray(ir.result.p, v, r.refractive_index),
+                                 vector3df::one * (100.0 * eps)).modulate(coeff);
         }
-        Id = Id + Id2;*/
+        Id += Id2; */
     }
 
 
@@ -102,7 +102,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
             vector3df Irefract =
                 ray_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
                     contribution.modulate(refractiveness)).modulate(refractiveness);
-            I = I + Irefract;
+            I += Irefract;
         }
         else // total reflection
         {
@@ -114,7 +114,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
     {
         vector3df Ireflect = ray_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
             contribution.modulate(reflectiveness)).modulate(reflectiveness);
-        I = I + Ireflect;
+        I += Ireflect;
     }
 
     return I.capped();
@@ -149,11 +149,11 @@ void camera::render(image &img) const
                         // o = location + right * (-aperture / 2.0 + sample_x * delta) +
                         //                up * (-aperture / 2.0 + sample_y * delta)
                         const ray r = ray(o, (t - o).normalize());
-                        color = color + ray_trace(r, vector3df::one / aperture_samples2) /
-                                        aperture_samples2;
-                        o = o + right * delta;
+                        color += ray_trace(r, vector3df::one / aperture_samples2) /
+                                 aperture_samples2;
+                        o += right * delta;
                     }
-                    o_y = o_y + up * delta;
+                    o_y += up * delta;
                 }
             }
             else // no depth of field

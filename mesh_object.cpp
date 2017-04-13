@@ -33,13 +33,14 @@ mesh_object::mesh_object(const mesh &m)
         weighted_ns[tri.z].push_back(weighted_n);
     }
 
+    // calc normal vectors of vertices
     for (std::size_t i = 0; i < _v.size(); ++i)
     {
         vector3df n = vector3df::zero;
         double total_weight = 0.0;
         for (const auto &weighted_n : weighted_ns[i])
         {
-            n = n + weighted_n.second; // n
+            n += weighted_n.second; // n
             total_weight += weighted_n.first; // weight
         }
         _n[i] = n / total_weight;
