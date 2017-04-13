@@ -122,6 +122,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
 
 void camera::render(image &img) const
 {
+    fprintf(stderr, "\rRendering... %5.2lf%%", 0.0);
     double aperture_samples2 = aperture_samples * aperture_samples;
     double delta = (double)aperture / aperture_samples;
 

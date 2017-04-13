@@ -22,6 +22,7 @@
 #include "bezier_surface.h"
 #include "bezier_curve.h"
 #include "mesh.h"
+#include "mesh_object.h"
 
 void save_image(const image &img, const std::string &filename)
 {
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
         vector3df(0.0, 1.0, 0.1).normalize()));
     ground.diffuse = vector3df(0.8, 0.8, 1.0) * 0.9;
 
-    object &magic1 = w.add_object(std::make_shared<sphere>(vector3df(70.0, 25.0, -220.0), 60.0));
+    object &magic1 = w.add_object(std::make_shared<sphere>(vector3df(70.0, 65.0, -220.0), 60.0));
     magic1.diffuse = vector3df::zero;
     magic1.specular = vector3df::one * 0.2;
     magic1.shininess = 32.0;
@@ -92,7 +93,7 @@ int main(int argc, char **argv)
     magic1.refractive_index = 1.333;
     magic1.reflectiveness = 0.99;
 
-    object &magic2 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 25.0, -90.0), 60.0));
+    object &magic2 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 55.0, -90.0), 60.0));
     magic2.diffuse = vector3df::zero;
     magic2.specular = vector3df::one * 0.2;
     magic2.shininess = 128.0;
@@ -100,7 +101,7 @@ int main(int argc, char **argv)
     magic2.refractive_index = 1.333;
     magic2.reflectiveness = 0.99;
 
-    object &magic3 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 25.0, -90.0), 30.0));
+    object &magic3 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 55.0, -90.0), 30.0));
     magic3.diffuse = vector3df::zero;
     magic3.specular = vector3df::one * 0.2;
     magic3.shininess = 32.0;
@@ -108,7 +109,7 @@ int main(int argc, char **argv)
     magic3.refractive_index = 1.5;
     magic3.reflectiveness = 0.9;
 
-    object &magic4 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 20.0, -90.0), 5.0));
+    object &magic4 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, 50.0, -90.0), 5.0));
     magic4.diffuse = vector3df::zero;
     magic4.specular = vector3df::one * 0.2;
     magic4.shininess = 32.0;
@@ -136,6 +137,22 @@ int main(int argc, char **argv)
         vector3df(-50.0, -0.1, -500.0),
         vector3df(100.0, -0.1, -500.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
+
+    bezier_curve bc = bezier_curve::load("bezier_curve.txt");
+    mesh m = bc.to_rotate_surface_mesh(0.01, 3.6);
+    for (auto &v : m.vertices)
+    {
+        v = v * 10.0;
+        v.x *= -1.0;
+        v.y *= -1.0;
+        // v.y += 40.0;
+    }
+    object &mo = w.add_object(std::make_shared<mesh_object>(m));
+    mo.diffuse = vector3df(0.5, 0.5, 0.5);
+    mo.diffuse = vector3df::zero;
+    mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    mo.refractive_index = 1.333;
+    mo.reflectiveness = 0.9;
 
     /*sphere boundary(vector3df(-1000.0, -500.0, -900.0), 5000.0);
     object &fog1 = w.add_object(std::make_shared<fog>(boundary));
@@ -180,7 +197,7 @@ int main(int argc, char **argv)
         }
     }*/
 
-    camera c(w, vector3df(0.0, 0.0, 147), vector3df(0.0, 0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
+    camera c(w, vector3df(0.0, 1.0, 147), vector3df(0.0, 0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
         
     // Performance test.
     for (int N = 1; N <= 1; ++N)

@@ -49,14 +49,59 @@ mesh_object::mesh_object(const mesh &m)
 
 intersect_result mesh_object::intersect(const ray &r) const
 {
-    return intersect_result::failed;
-    // TODO
+    // TODO: use kd-tree
+    triangle_intersect_result result = triangle_intersect_result::failed;
+    for (std::size_t i = 0; i < _tri.size(); ++i)
+    {
+        triangle_intersect_result tir = _intersect_triangle(r, i);
+        if (!tir.succeeded)
+        {
+            continue;
+        }
+        if (!result.succeeded || tir.t < result.t)
+        {
+            result = tir;
+        }
+    }
+
+    if (!result.succeeded)
+    {
+        return intersect_result::failed;
+    }
+    else
+    {
+        const vector3di &tri = _tri[result.index];
+        // normal vector interpolation
+        const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
+        vector3df n = n_a * result.alpha + n_b * result.beta + n_c * result.gamma;
+        n = n.normalize();
+        n = _caches[result.index].n;
+        return intersect_result(r.origin + r.direction * result.t, n, result.t);
+    }
 }
 
 std::vector<intersect_result> mesh_object::intersect_all(const ray &r) const
 {
-    return std::vector<intersect_result>();
-    // TODO
+    std::vector<intersect_result> result;
+    // TODO: use kd-tree
+    for (std::size_t i = 0; i < _tri.size(); ++i)
+    {
+        triangle_intersect_result tir = _intersect_triangle(r, i);
+        if (!tir.succeeded)
+        {
+            continue;
+        }
+        const vector3di &tri = _tri[i];
+        // normal vector interpolation
+        const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
+        vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
+        n = n.normalize();
+        n = _caches[i].n;
+        intersect_result ir(r.origin + r.direction * tir.t, n, tir.t);
+        result.push_back(ir);
+    }
+
+    return result;
 }
 
 mesh_object::triangle_intersect_result
