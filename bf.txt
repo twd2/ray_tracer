@@ -1,0 +1,1 @@
+./main 94.92s user 0.72s system 98% cpu 1:37.47 total

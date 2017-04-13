@@ -9,13 +9,14 @@ mesh_object::mesh_object(const mesh &m)
 {
     typedef std::pair<double, vector3df> weighted_n_t;
 
-    // TODO: build kd-tree
-
+    std::vector<triangle_index> kd_points;
     std::vector<std::vector<weighted_n_t> > weighted_ns(_mesh.vertices.size());
     for (std::size_t i = 0; i < _tri.size(); ++i)
     {
         const vector3di &tri = _tri[i];
         const vector3df &a = _v[tri.x], &b = _v[tri.y], &c = _v[tri.z];
+
+        kd_points.push_back(triangle_index(i, a, b, c));
     
         // make cache
         triangle_cache cache;
@@ -45,6 +46,8 @@ mesh_object::mesh_object(const mesh &m)
         }
         _n[i] = n / total_weight;
     }
+
+    _kdt = kd_tree<triangle_index>::build(kd_points.begin(), kd_points.end());
 }
 
 intersect_result mesh_object::intersect(const ray &r) const
@@ -70,13 +73,8 @@ intersect_result mesh_object::intersect(const ray &r) const
     }
     else
     {
-        const vector3di &tri = _tri[result.index];
-        // normal vector interpolation
-        const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
-        vector3df n = n_a * result.alpha + n_b * result.beta + n_c * result.gamma;
-        n = n.normalize();
-        //n = _caches[result.index].n;
-        return intersect_result(r.origin + r.direction * result.t, n, result.t);
+        return intersect_result(r.origin + r.direction * result.t,
+                                get_normal_vector(result), result.t);
     }
 }
 
@@ -91,13 +89,7 @@ std::vector<intersect_result> mesh_object::intersect_all(const ray &r) const
         {
             continue;
         }
-        const vector3di &tri = _tri[i];
-        // normal vector interpolation
-        const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
-        vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
-        n = n.normalize();
-        //n = _caches[i].n;
-        intersect_result ir(r.origin + r.direction * tir.t, n, tir.t);
+        intersect_result ir(r.origin + r.direction * tir.t, get_normal_vector(tir), tir.t);
         result.push_back(ir);
     }
 
@@ -139,4 +131,15 @@ mesh_object::_intersect_triangle(const ray &r, std::size_t i) const
     }
 
     return triangle_intersect_result(i, t, 1 - (beta + gamma), beta, gamma);
+}
+
+vector3df mesh_object::get_normal_vector(const triangle_intersect_result &tir) const
+{
+    const vector3di &tri = _tri[tir.index];
+    // normal vector interpolation
+    const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
+    vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
+    n = n.normalize();
+    //n = _caches[tir.index].n;
+    return n;
 }

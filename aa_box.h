@@ -22,9 +22,9 @@ public:
     bool is_inside(const vector3df &p0) const
     {
         vector3df p2 = p + size;
-        return p.x < p0.x && p0.x < p2.x && 
-               p.y < p0.y && p0.y < p2.y &&
-               p.z < p0.z && p0.z < p2.z;
+        return p.x <= p0.x && p0.x <= p2.x && 
+               p.y <= p0.y && p0.y <= p2.y &&
+               p.z <= p0.z && p0.z <= p2.z;
     }
 
     intersect_result intersect(const ray &r) const override;
