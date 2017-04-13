@@ -75,7 +75,7 @@ intersect_result mesh_object::intersect(const ray &r) const
         const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
         vector3df n = n_a * result.alpha + n_b * result.beta + n_c * result.gamma;
         n = n.normalize();
-        n = _caches[result.index].n;
+        //n = _caches[result.index].n;
         return intersect_result(r.origin + r.direction * result.t, n, result.t);
     }
 }
@@ -96,7 +96,7 @@ std::vector<intersect_result> mesh_object::intersect_all(const ray &r) const
         const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
         vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
         n = n.normalize();
-        n = _caches[i].n;
+        //n = _caches[i].n;
         intersect_result ir(r.origin + r.direction * tir.t, n, tir.t);
         result.push_back(ir);
     }

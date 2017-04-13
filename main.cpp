@@ -23,6 +23,8 @@
 #include "bezier_curve.h"
 #include "mesh.h"
 #include "mesh_object.h"
+#include "aa_box.h"
+
 
 void save_image(const image &img, const std::string &filename)
 {
@@ -138,21 +140,31 @@ int main(int argc, char **argv)
         vector3df(100.0, -0.1, -500.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
-    bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.01, 3.6);
-    for (auto &v : m.vertices)
-    {
-        v = v * 10.0;
-        v.x *= -1.0;
-        v.y *= -1.0;
-        // v.y += 40.0;
-    }
-    object &mo = w.add_object(std::make_shared<mesh_object>(m));
-    mo.diffuse = vector3df(0.5, 0.5, 0.5);
-    mo.diffuse = vector3df::zero;
+    // bezier_curve bc = bezier_curve::load("bezier_curve.txt");
+    // mesh m = bc.to_rotate_surface_mesh(0.05, 3.6);
+    // for (auto &v : m.vertices)
+    // {
+    //     v = v * 10.0;
+    //     v.x *= -1.0;
+    //     v.y *= -1.0;
+    //     // v.y += 40.0;
+    // }
+    // object &mo = w.add_object(std::make_shared<mesh_object>(m));
+    // mo.diffuse = vector3df(0.24, 0.48, 0.53);
+    /*mo.diffuse = vector3df::zero;
     mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
     mo.refractive_index = 1.333;
-    mo.reflectiveness = 0.9;
+    mo.reflectiveness = 0.9;*/
+    object &box = w.add_object(std::make_shared<aa_box>(vector3df(60.0, -50.0, -220.0),
+                                                        vector3df(20.0, 30.0, 190.0)));
+    box.diffuse = vector3df(0.24, 0.48, 0.53);
+    //box.diffuse = vector3df::zero;
+    //box.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    //box.refractive_index = 1.5;
+    box.reflectiveness = 0.5;
+    object &sb1 = w.add_object(std::make_shared<sphere>(vector3df(60.0, -50.0, -220.0), 5.0));
+    object &sb2 = w.add_object(std::make_shared<sphere>(vector3df(80.0, -20.0, -30.0), 5.0));
+    sb1.diffuse = sb2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     /*sphere boundary(vector3df(-1000.0, -500.0, -900.0), 5000.0);
     object &fog1 = w.add_object(std::make_shared<fog>(boundary));
