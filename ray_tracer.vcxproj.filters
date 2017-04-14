@@ -63,6 +63,24 @@
     <ClCompile Include="fog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="aa_box.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bezier_curve.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bezier_surface.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="kd_tree.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_object.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -116,10 +134,32 @@
     <ClInclude Include="fog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="aa_box.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bezier_curve.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bezier_surface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="kd_tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_object.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="test.png">
       <Filter>资源文件</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bezier_surface.txt" />
+    <Text Include="bezier_curve.txt" />
   </ItemGroup>
 </Project>

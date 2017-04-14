@@ -7,44 +7,38 @@ mesh_object::mesh_object(const mesh &m)
     : object(), _mesh(m), _v(m.vertices), _tri(m.surfaces),
     _n(m.vertices.size()), _caches(m.surfaces.size())
 {
-    typedef std::pair<double, vector3df> weighted_n_t;
-
     std::vector<triangle_index> kd_points;
-    std::vector<std::vector<weighted_n_t> > weighted_ns(_mesh.vertices.size());
+    std::vector<vector_sum_count> sum_count(_mesh.vertices.size());
     for (std::size_t i = 0; i < _tri.size(); ++i)
     {
         const vector3di &tri = _tri[i];
         const vector3df &a = _v[tri.x], &b = _v[tri.y], &c = _v[tri.z];
 
-        kd_points.push_back(triangle_index(i, a, b, c));
+        kd_points.push_back(triangle_index(*this, i));
     
         // make cache
         triangle_cache cache;
-        cache.E1 = a - b;
-        cache.E2 = a - c;
-        cache.E1xE2 = cache.E1.cross(cache.E2);
+        vector3df E1 = a - b;
+        vector3df E2 = a - c;
+        cache.E1xE2 = E1.cross(E2);
         cache.n = cache.E1xE2.normalize();
         _caches[i] = cache;
 
-        // make normal vector and its weight
+        // make normal vector and its count
         double area = cache.E1xE2.length() / 2.0; // = weight
-        weighted_n_t weighted_n = std::make_pair(area, cache.n);
-        weighted_ns[tri.x].push_back(weighted_n);
-        weighted_ns[tri.y].push_back(weighted_n);
-        weighted_ns[tri.z].push_back(weighted_n);
+        vector3df weighted_n = cache.n * area;
+        sum_count[tri.x].count += area;
+        sum_count[tri.x].sum += weighted_n;
+        sum_count[tri.y].count += area;
+        sum_count[tri.y].sum += weighted_n;
+        sum_count[tri.z].count += area;
+        sum_count[tri.z].sum += weighted_n;
     }
 
     // calc normal vectors of vertices
     for (std::size_t i = 0; i < _v.size(); ++i)
     {
-        vector3df n = vector3df::zero;
-        double total_weight = 0.0;
-        for (const auto &weighted_n : weighted_ns[i])
-        {
-            n += weighted_n.second; // n
-            total_weight += weighted_n.first; // weight
-        }
-        _n[i] = n / total_weight;
+        _n[i] = sum_count[i].sum / sum_count[i].count;
     }
 
     _kdt = kd_tree<triangle_index>::build(kd_points.begin(), kd_points.end());
@@ -100,8 +94,11 @@ mesh_object::triangle_intersect_result
 mesh_object::_intersect_triangle(const ray &r, std::size_t i) const
 {
     const vector3di &tri = _tri[i];
-    const vector3df &a = _v[tri.x];
+    const vector3df &a = _v[tri.x], &b = _v[tri.y], &c = _v[tri.z];
     const triangle_cache &cache = _caches[i];
+
+    vector3df E1 = a - b;
+    vector3df E2 = a - c;
 
     double divisor = cache.E1xE2.dot(r.direction);
     if (divisor <= eps && divisor >= -eps)
@@ -117,13 +114,13 @@ mesh_object::_intersect_triangle(const ray &r, std::size_t i) const
         return triangle_intersect_result::failed;
     }
     vector3df DxS = r.direction.cross(S);
-    double beta = DxS.dot(cache.E2) * divisor_inv;
+    double beta = DxS.dot(E2) * divisor_inv;
     if (beta <= eps || beta > 1.0)
     {
         return triangle_intersect_result::failed;
     }
 
-    double gamma = DxS.dot(-cache.E1) * divisor_inv;
+    double gamma = DxS.dot(-E1) * divisor_inv;
 
     if (gamma <= eps || (beta + gamma) > 1.0)
     {

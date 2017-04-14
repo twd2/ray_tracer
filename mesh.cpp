@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include <cstdio>
+#include <cinttypes>
 
 void mesh::save(const std::string &filename) const
 {
@@ -12,7 +13,7 @@ void mesh::save(const std::string &filename) const
 
     for (const auto &f : surfaces)
     {
-        fprintf(fd, "f %ld %ld %ld\n", f.x + 1, f.y + 1, f.z + 1);
+        fprintf(fd, "f %" PRId64 " %" PRId64 " %" PRId64 "\n", f.x + 1, f.y + 1, f.z + 1);
     }
 
     fclose(fd);

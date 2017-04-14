@@ -1,6 +1,7 @@
 #include "bezier_curve.h"
 
 #include <cmath>
+#include <cinttypes>
 
 vector3df bezier_curve::get_point(double t) const
 {
@@ -66,7 +67,7 @@ bezier_curve bezier_curve::load(const std::string &filename)
     FILE *fd = fopen(filename.c_str(), "r");
 
     std::size_t n;
-    fscanf(fd, "%lu", &n);
+    fscanf(fd, "%" SCNu64, &n);
     bezier_curve result(n);
     for (std::size_t i = 0; i <= n; ++i)
     {

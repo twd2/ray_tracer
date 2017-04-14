@@ -1,3 +1,5 @@
+#include <cinttypes>
+
 #include "bezier_surface.h"
 
 vector3df bezier_surface::get_point(double u, double v) const
@@ -59,7 +61,7 @@ bezier_surface bezier_surface::load(const std::string &filename)
     FILE *fd = fopen(filename.c_str(), "r");
 
     std::size_t width, height;
-    fscanf(fd, "%lu%lu", &width, &height);
+    fscanf(fd, "%" SCNu64 "%" SCNu64, &width, &height);
     bezier_surface result(width, height);
     for (std::size_t y = 0; y < height; ++y)
     {

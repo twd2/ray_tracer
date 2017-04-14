@@ -115,7 +115,11 @@ kd_tree<T>::_build(TITERATOR begin, TITERATOR end, const aa_box &range, std::siz
             node->points.push_back(point);
         }
     }
-    printf("kd node (%p) size=%lu\n", node.get(), node->points.size());
+    if (node->points.size() < 8)
+    {
+        return nullptr;
+    }
+    //printf("kd node (%p) size=%lu\n", node.get(), node->points.size());
 
     // split
     std::size_t median_index = size / 2;
@@ -126,7 +130,7 @@ kd_tree<T>::_build(TITERATOR begin, TITERATOR end, const aa_box &range, std::siz
                      });
     T &median = *(begin + median_index);
     double split = median.get_dim(split_dim);
-    printf("split=%lf\n", split);
+    //printf("split=%lf\n", split);
     vector3df delta;
     std::size_t next_dim;
     if (split_dim == 0)

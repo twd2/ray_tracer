@@ -95,7 +95,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -111,7 +111,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -129,7 +129,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -149,7 +149,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -162,14 +162,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aa_box.cpp" />
+    <ClCompile Include="bezier_curve.cpp" />
+    <ClCompile Include="bezier_surface.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="fog.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="image.cpp" />
+    <ClCompile Include="kd_tree.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="mesh_object.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="parallel_light.cpp" />
     <ClCompile Include="plane.cpp" />
@@ -180,14 +186,20 @@
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aa_box.h" />
+    <ClInclude Include="bezier_curve.h" />
+    <ClInclude Include="bezier_surface.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="fog.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="image.h" />
+    <ClInclude Include="kd_tree.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="mesh_object.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="parallel_light.h" />
     <ClInclude Include="plane.h" />
@@ -200,6 +212,14 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="test.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bezier_curve.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
+    <Text Include="bezier_surface.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

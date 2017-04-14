@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.01, 3.6);
+    mesh m = bc.to_rotate_surface_mesh(0.0001, 3.6);
     for (auto &v : m.vertices)
     {
         v = v * 10.0;
@@ -158,9 +158,9 @@ int main(int argc, char **argv)
     object &box = w.add_object(std::make_shared<aa_box>(vector3df(60.0, -50.0, -220.0),
                                                         vector3df(20.0, 30.0, 190.0)));
     box.diffuse = vector3df(0.24, 0.48, 0.53);
-    //box.diffuse = vector3df::zero;
-    //box.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
-    //box.refractive_index = 1.5;
+    box.diffuse = vector3df::zero;
+    box.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    box.refractive_index = 1.5;
     box.reflectiveness = 0.5;
     object &sb1 = w.add_object(std::make_shared<sphere>(vector3df(60.0, -50.0, -220.0), 5.0));
     object &sb2 = w.add_object(std::make_shared<sphere>(vector3df(80.0, -20.0, -30.0), 5.0));
