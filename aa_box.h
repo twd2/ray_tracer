@@ -14,7 +14,6 @@ class aa_box
 public:
     const vector3df p;
     const vector3df size;
-    const plane planes[6];
 
 public:
     aa_box(const vector3df &p, const vector3df &size);
@@ -33,6 +32,7 @@ public:
                                  left = 2, right = 3,
                                  top = 4, bottom = 5,
                                  none = 6;
+    static const vector3df normals[6];
 };
 
 

@@ -7,17 +7,18 @@
 #include "ray.h"
 #include "vector3d.hpp"
 
+const vector3df aa_box::normals[6] =
+{
+    vector3df(0.0, 0.0,  1.0), // front
+    vector3df(0.0, 0.0, -1.0), // back
+    vector3df(-1.0, 0.0, 0.0), // left
+    vector3df( 1.0, 0.0, 0.0), // right
+    vector3df(0.0,  1.0, 0.0), // top
+    vector3df(0.0, -1.0, 0.0)  // bottom
+};
+
 aa_box::aa_box(const vector3df &p, const vector3df &size)
-    : object(), p(p), size(size),
-      planes
-      {
-          plane(p + size, vector3df(0.0, 0.0,  1.0)), // front
-          plane(p,        vector3df(0.0, 0.0, -1.0)), // back
-          plane(p,        vector3df(-1.0, 0.0, 0.0)), // left
-          plane(p + size, vector3df( 1.0, 0.0, 0.0)), // right
-          plane(p + size, vector3df(0.0,  1.0, 0.0)), // top
-          plane(p,        vector3df(0.0, -1.0, 0.0))  // bottom
-      }
+    : object(), p(p), size(size)
 {
 
 }
@@ -25,6 +26,8 @@ aa_box::aa_box(const vector3df &p, const vector3df &size)
 intersect_result aa_box::intersect(const ray &r) const
 {
     // woo algorithm
+
+    // find planes to intersect
     std::size_t front_back, left_right, top_bottom;
     if (!is_inside(r.origin))
     {
@@ -109,71 +112,95 @@ intersect_result aa_box::intersect(const ray &r) const
         }
     }
 
-    intersect_result ir[3] { intersect_result::failed,
-                             intersect_result::failed,
-                             intersect_result::failed };
-
+    // intersect with 3 planes
+    vector3df p2 = p + size;
+    double intersection[3] { -1.0, -1.0, -1.0 };
     if (front_back != none)
     {
-        ir[0] = planes[front_back].intersect(r);
+        if (front_back == front)
+        {
+            intersection[0] = (p2.z - r.origin.z) / r.direction.z;
+        }
+        if (front_back == back)
+        {
+            intersection[0] = (p.z - r.origin.z) / r.direction.z;
+        }
     }
     if (left_right != none)
     {
-        ir[1] = planes[left_right].intersect(r);
+        if (left_right == left)
+        {
+            intersection[1] = (p.x - r.origin.x) / r.direction.x;
+        }
+        if (left_right == right)
+        {
+            intersection[1] = (p2.x - r.origin.x) / r.direction.x;
+        }
     }
     if (top_bottom != none)
     {
-        ir[2] = planes[top_bottom].intersect(r);
-    }
-
-    std::size_t furthest_index = 0;
-    for (std::size_t i = 1; i < 3; ++i)
-    {
-        if (ir[i].succeeded)
+        if (top_bottom == top)
         {
-            if (!ir[furthest_index].succeeded || ir[furthest_index].distance < ir[i].distance)
-            {
-                furthest_index = i;
-            }
+            intersection[2] = (p2.y - r.origin.y) / r.direction.y;
+        }
+        if (top_bottom == bottom)
+        {
+            intersection[2] = (p.y - r.origin.y) / r.direction.y;
         }
     }
 
-    intersect_result &result = ir[furthest_index];
+    // select the furthest one
+    std::size_t furthest_index = 0;
+    for (std::size_t i = 1; i < 3; ++i)
+    {
+        if (intersection[furthest_index] < intersection[i])
+        {
+            furthest_index = i;
+        }
+    }
 
-    if (!result.succeeded || result.distance < eps)
+    // further check
+    double &t = intersection[furthest_index];
+
+    if (t <= eps)
     {
         return intersect_result::failed;
     }
 
-    vector3df p2 = p + size;
+    intersect_result ir(r.origin + r.direction * t, vector3df::zero, t);
+    //                                              would be filled later
+
     if (furthest_index == 0) // front_back
     {
-        if (!(p.x < result.p.x && result.p.x < p2.x &&
-              p.y < result.p.y && result.p.y < p2.y))
+        if (!(p.x < ir.p.x && ir.p.x < p2.x &&
+              p.y < ir.p.y && ir.p.y < p2.y))
         {
             return intersect_result::failed;
         }
+        ir.n = normals[front_back];
     }
     else if (furthest_index == 1) // left_right
     {
-        if (!(p.y < result.p.y && result.p.y < p2.y &&
-              p.z < result.p.z && result.p.z < p2.z))
+        if (!(p.y < ir.p.y && ir.p.y < p2.y &&
+              p.z < ir.p.z && ir.p.z < p2.z))
         {
             return intersect_result::failed;
         }
+        ir.n = normals[left_right];
     }
     else if (furthest_index == 2) // top_bottom
     {
-        if (!(p.x < result.p.x && result.p.x < p2.x &&
-              p.z < result.p.z && result.p.z < p2.z))
+        if (!(p.x < ir.p.x && ir.p.x < p2.x &&
+              p.z < ir.p.z && ir.p.z < p2.z))
         {
             return intersect_result::failed;
         }
+        ir.n = normals[top_bottom];
     }
     else
     {
         return intersect_result::failed;
     }
 
-    return ir[furthest_index];
+    return ir;
 }

@@ -140,17 +140,17 @@ int main(int argc, char **argv)
         vector3df(100.0, -0.1, -500.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
-    bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.0001, 3.6);
-    for (auto &v : m.vertices)
-    {
-        v = v * 10.0;
-        v.x *= -1.0;
-        v.y *= -1.0;
-        // v.y += 40.0;
-    }
-    object &mo = w.add_object(std::make_shared<mesh_object>(m));
-    mo.diffuse = vector3df(0.24, 0.48, 0.53);
+    //bezier_curve bc = bezier_curve::load("bezier_curve.txt");
+    //mesh m = bc.to_rotate_surface_mesh(0.0001, 3.6);
+    //for (auto &v : m.vertices)
+    //{
+    //    v = v * 10.0;
+    //    v.x *= -1.0;
+    //    v.y *= -1.0;
+    //    // v.y += 40.0;
+    //}
+    //object &mo = w.add_object(std::make_shared<mesh_object>(m));
+    //mo.diffuse = vector3df(0.24, 0.48, 0.53);
     /*mo.diffuse = vector3df::zero;
     mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
     mo.refractive_index = 1.333;
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
     floor.reflectiveness = 0.9;*/
 
     w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
-    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 600.0, -1000.0), vector3df(1.0, 1.0, 0.8)));
+    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(-100.0, 60.0, -100.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8) * 0.9));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 100.0), vector3df(1.0, 1.0, 0.8) * 0.9));
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
         }
     }*/
 
-    camera c(w, vector3df(0.0, 1.0, 147), vector3df(0.0, 0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
+    camera c(w, vector3df(0.0, -1.0, 147.0), vector3df(0.0, 0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
         
     // Performance test.
     for (int N = 1; N <= 1; ++N)
