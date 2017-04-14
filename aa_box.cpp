@@ -204,3 +204,49 @@ intersect_result aa_box::intersect(const ray &r) const
 
     return ir;
 }
+
+std::vector<intersect_result> aa_box::intersect_all(const ray &r) const
+{
+    vector3df p2 = p + size;
+    double intersection[6] { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 };
+    if (r.direction.z < -eps || eps < r.direction.z)
+    {
+        intersection[0] = (p2.z - r.origin.z) / r.direction.z;
+        intersection[1] = (p.z - r.origin.z) / r.direction.z;
+    }
+    if (r.direction.x < -eps || eps < r.direction.x)
+    {
+        intersection[2] = (p.x - r.origin.x) / r.direction.x;
+        intersection[3] = (p2.x - r.origin.x) / r.direction.x;
+    }
+    if (r.direction.y < -eps || eps < r.direction.y)
+    {
+        intersection[4] = (p2.y - r.origin.y) / r.direction.y;
+        intersection[5] = (p.y - r.origin.y) / r.direction.y;
+    }
+
+    std::vector<intersect_result> results;
+    for (int i = 0; i < 6; ++i)
+    {
+        double &t = intersection[i];
+        if (t > eps)
+        {
+            intersect_result ir(r.origin + r.direction * t, normals[i], t);
+            if (((i == 0 || i == 1) &&
+                 p.x < ir.p.x && ir.p.x < p2.x &&
+                 p.y < ir.p.y && ir.p.y < p2.y) ||
+                ((i == 2 || i == 3) &&
+                 p.y < ir.p.y && ir.p.y < p2.y &&
+                 p.z < ir.p.z && ir.p.z < p2.z) ||
+                ((i == 4 || i == 5) &&
+                 p.x < ir.p.x && ir.p.x < p2.x &&
+                 p.z < ir.p.z && ir.p.z < p2.z))
+            {
+                results.push_back(ir);
+            }
+        }
+    }
+
+    // assert results.size() <= 2
+    return results;
+}

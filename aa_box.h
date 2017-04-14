@@ -27,6 +27,7 @@ public:
     }
 
     intersect_result intersect(const ray &r) const override;
+    std::vector<intersect_result> intersect_all(const ray &r) const override;
 
     static constexpr std::size_t front = 0, back = 1,
                                  left = 2, right = 3,
