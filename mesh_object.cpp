@@ -41,6 +41,7 @@ mesh_object::mesh_object(const mesh &m)
         _n[i] = sum_count[i].sum / sum_count[i].count;
     }
 
+    printf("building kd-tree\n");
     _kdt = kd_tree<triangle_index>::build(kd_points.begin(), kd_points.end());
 }
 
@@ -137,6 +138,6 @@ vector3df mesh_object::get_normal_vector(const triangle_intersect_result &tir) c
     const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
     vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
     n = n.normalize();
-    //n = _caches[tir.index].n;
+    n = _caches[tir.index].n;
     return n;
 }

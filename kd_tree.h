@@ -6,7 +6,7 @@
 #include <iterator>
 #include <algorithm>
 
-#include "aa_box.h"
+#include "aa_cube.h"
 
 // T should have T::get_dim(i), i = 0, 1, 2
 template <typename T>
@@ -16,15 +16,31 @@ public:
     class node
     {
     public:
-        aa_box range; // (x0, x1] x (y0, y1] x (z0, z1]
-        std::size_t split_dim;
-        std::shared_ptr<node> left = nullptr, right = nullptr;
-        std::vector<T> points;
+        aa_cube range; // (x0, x1] x (y0, y1] x (z0, z1]
+        node *left = nullptr, *right = nullptr;
+        T *points = nullptr;
+        unsigned int split_dim, size = 0;
 
-        node(const aa_box &range, std::size_t split_dim)
+        node(const aa_cube &range, std::size_t split_dim)
             : range(range), split_dim(split_dim)
         {
 
+        }
+
+        ~node()
+        {
+            if (left)
+            {
+                delete left;
+            }
+            if (right)
+            {
+                delete right;
+            }
+            if (points)
+            {
+                delete points;
+            }
         }
     };
 
@@ -46,8 +62,8 @@ public:
 
 private:
     template <typename TITERATOR>
-    static std::shared_ptr<node> _build(TITERATOR begin, TITERATOR end,
-                                        const aa_box &range, std::size_t split_dim);
+    static node *_build(TITERATOR begin, TITERATOR end,
+                        const aa_cube &range, std::size_t split_dim);
 };
 
 template <typename T>
@@ -88,49 +104,63 @@ kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end)
         }
     }
 
-    std::shared_ptr<typename kd_tree<T>::node> root =
-        _build(begin, end, aa_box(min_v, max_v - min_v), 0);
-    return kd_tree(root);
+    std::shared_ptr<typename kd_tree<T>::node> root(
+        _build(begin, end, aa_cube(min_v, max_v - min_v), 0));
+    return kd_tree(std::move(root));
 }
 
 template <typename T>
 template <typename TITERATOR>
-std::shared_ptr<typename kd_tree<T>::node>
-kd_tree<T>::_build(TITERATOR begin, TITERATOR end, const aa_box &range, std::size_t split_dim)
+typename kd_tree<T>::node *kd_tree<T>::_build(TITERATOR begin, TITERATOR end,
+                                              const aa_cube &range, std::size_t split_dim)
 {
     std::size_t size = end - begin;
-    if (size < 8)
+    if (size < 128)
     {
         return nullptr;
     }
 
     // build current node
-    std::shared_ptr<typename kd_tree<T>::node> node = 
-        std::make_shared<typename kd_tree<T>::node>(range, split_dim);
+    unsigned int node_size = 0;
     for (TITERATOR iter = begin; iter != end; ++iter)
     {
         T &point = *iter;
         if (point.is_inside(range))
         {
-            node->points.push_back(point);
+            ++node_size;
         }
     }
-    if (node->points.size() < 8)
+    if (node_size < 128)
     {
         return nullptr;
     }
-    //printf("kd node (%p) size=%lu\n", node.get(), node->points.size());
+
+    typename kd_tree<T>::node *node =
+        new typename kd_tree<T>::node(range, split_dim);
+    node->size = node_size;
+    node->points = new T[node_size];
+    int i = 0;
+    for (TITERATOR iter = begin; iter != end; ++iter)
+    {
+        T &point = *iter;
+        if (point.is_inside(range))
+        {
+            node->points[i] = point;
+            ++i;
+        }
+    }
+    printf("kd node (%p) size=%lu\n", node, node_size);
 
     // split
-    std::size_t median_index = size / 2;
-    std::nth_element(begin, begin + median_index, end,
+    std::size_t median_index = node_size / 2;
+    std::nth_element(node->points, node->points + median_index, node->points + node->size,
                      [split_dim] (const T &a, const T &b) -> bool
                      {
                          return a.get_dim(split_dim) < b.get_dim(split_dim);
                      });
-    T &median = *(begin + median_index);
+    T &median = node->points[median_index];
     double split = median.get_dim(split_dim);
-    //printf("split=%lf\n", split);
+    printf("split=%lf\n", split);
     vector3df delta;
     std::size_t next_dim;
     if (split_dim == 0)
@@ -154,10 +184,10 @@ kd_tree<T>::_build(TITERATOR begin, TITERATOR end, const aa_box &range, std::siz
         return nullptr;
     }
 
-    node->left = _build(node->points.begin(), node->points.end(),
-                        aa_box(range.p, range.size - delta), next_dim);
-    node->right = _build(node->points.begin(), node->points.end(),
-                         aa_box(range.p + delta, range.size - delta), next_dim);
+    node->left = _build(node->points, node->points + node->size,
+                        aa_cube(range.p, range.size - delta), next_dim);
+    node->right = _build(node->points, node->points + node->size,
+                         aa_cube(range.p + delta, range.size - delta), next_dim);
     return node;
 }
 

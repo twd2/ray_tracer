@@ -5,7 +5,7 @@
 #include "ray.h"
 #include "vector3d.hpp"
 #include "mesh.h"
-#include "aa_box.h"
+#include "aa_cube.h"
 #include "kd_tree.h"
 
 class triangle_index;
@@ -72,11 +72,13 @@ private:
 class triangle_index
 {
 private:
-    const mesh_object *mo;
-    std::size_t i;
-    vector3df centre;
+    const mesh_object *mo = nullptr;
+    std::size_t i = 0;
+    vector3df centre = vector3df::zero;
 
 public:
+    triangle_index() = default;
+
     triangle_index(const mesh_object &mo, std::size_t i)
         : mo(&mo), i(i),
           centre((mo._v[mo._tri[i].x] + mo._v[mo._tri[i].y] + mo._v[mo._tri[i].z]) / 3.0)
@@ -126,7 +128,7 @@ public:
         }
     }
 
-    bool is_inside(const aa_box &box) const
+    bool is_inside(const aa_cube &box) const
     {
         return box.is_inside(mo->_v[mo->_tri[i].x]) ||
                box.is_inside(mo->_v[mo->_tri[i].y]) ||

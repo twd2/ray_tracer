@@ -63,9 +63,6 @@
     <ClCompile Include="fog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="aa_box.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="bezier_curve.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -79,6 +76,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="mesh_object.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="aa_cube.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="aa_box.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,9 +137,6 @@
     <ClInclude Include="fog.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="aa_box.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="bezier_curve.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -150,6 +150,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="mesh_object.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="aa_cube.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="aa_box.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

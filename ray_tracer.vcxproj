@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aa_box.cpp" />
+    <ClCompile Include="aa_cube.cpp" />
     <ClCompile Include="bezier_curve.cpp" />
     <ClCompile Include="bezier_surface.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -187,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aa_box.h" />
+    <ClInclude Include="aa_cube.h" />
     <ClInclude Include="bezier_curve.h" />
     <ClInclude Include="bezier_surface.h" />
     <ClInclude Include="camera.h" />

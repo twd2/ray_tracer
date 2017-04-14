@@ -140,17 +140,17 @@ int main(int argc, char **argv)
         vector3df(100.0, -0.1, -500.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
-    //bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    //mesh m = bc.to_rotate_surface_mesh(0.0001, 3.6);
-    //for (auto &v : m.vertices)
-    //{
-    //    v = v * 10.0;
-    //    v.x *= -1.0;
-    //    v.y *= -1.0;
-    //    // v.y += 40.0;
-    //}
-    //object &mo = w.add_object(std::make_shared<mesh_object>(m));
-    //mo.diffuse = vector3df(0.24, 0.48, 0.53);
+    bezier_curve bc = bezier_curve::load("bezier_curve.txt");
+    mesh m = bc.to_rotate_surface_mesh(0.001, 3.6);
+    for (auto &v : m.vertices)
+    {
+        v = v * 10.0;
+        v.x *= -1.0;
+        v.y *= -1.0;
+        // v.y += 40.0;
+    }
+    object &mo = w.add_object(std::make_shared<mesh_object>(m));
+    mo.diffuse = vector3df(0.24, 0.48, 0.53);
     /*mo.diffuse = vector3df::zero;
     mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
     mo.refractive_index = 1.333;
