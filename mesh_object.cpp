@@ -26,19 +26,22 @@ mesh_object::mesh_object(const mesh &m)
 
         // make normal vector and its count
         double area = cache.E1xE2.length() / 2.0; // = weight
-        vector3df weighted_n = cache.n * area;
-        count[tri.x] += area;
-        _n[tri.x] += weighted_n;
-        count[tri.y] += area;
-        _n[tri.y] += weighted_n;
-        count[tri.z] += area;
-        _n[tri.z] += weighted_n;
+        if (area > eps)
+        {
+            vector3df weighted_n = cache.n * area;
+            count[tri.x] += area;
+            _n[tri.x] += weighted_n;
+            count[tri.y] += area;
+            _n[tri.y] += weighted_n;
+            count[tri.z] += area;
+            _n[tri.z] += weighted_n;
+        }
     }
 
     // calc normal vectors of vertices
     for (std::size_t i = 0; i < _v.size(); ++i)
     {
-        _n[i] = _n[i] / count[i];
+        _n[i] = (_n[i] / count[i]).normalize();
     }
 
     printf("building kd-tree\n");
@@ -139,7 +142,7 @@ vector3df mesh_object::get_normal_vector(const triangle_intersect_result &tir) c
     const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
     vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
     n = n.normalize();
-    n = _caches[tir.index].n; // FIXME
+    // n = _caches[tir.index].n; // FIXME
     return n;
 }
 

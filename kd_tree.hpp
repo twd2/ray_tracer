@@ -125,7 +125,7 @@ typename kd_tree<T>::node *kd_tree<T>::_build(std::vector<T> &points,
                                               const aa_cube &range, const aa_cube &other_range,
                                               std::size_t split_dim, std::size_t depth)
 {
-    if (depth >= 32) // too deep
+    if (depth >= 1) // too deep
     {
         // printf("too deep %llu\n", end - begin);
         return nullptr;

@@ -29,6 +29,7 @@ intersect_result aa_cube::intersect(const ray &r) const
 
     // find planes to intersect
     std::size_t front_back, left_right, top_bottom;
+    bool inside = false;
     if (!is_inside(r.origin))
     {
         if (r.direction.x > eps)
@@ -72,6 +73,7 @@ intersect_result aa_cube::intersect(const ray &r) const
     }
     else
     {
+        inside = true;
         if (r.direction.x > eps)
         {
             left_right = right;
@@ -153,9 +155,19 @@ intersect_result aa_cube::intersect(const ray &r) const
     std::size_t furthest_index = 0;
     for (std::size_t i = 1; i < 3; ++i)
     {
-        if (intersection[furthest_index] < intersection[i])
+        if (!inside)
         {
-            furthest_index = i;
+            if (intersection[furthest_index] < intersection[i])
+            {
+                furthest_index = i;
+            }
+        }
+        else
+        {
+            if (intersection[furthest_index] > intersection[i])
+            {
+                furthest_index = i;
+            }
         }
     }
 
