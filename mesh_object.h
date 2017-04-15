@@ -6,7 +6,7 @@
 #include "vector3d.hpp"
 #include "mesh.h"
 #include "aa_cube.h"
-#include "kd_tree.h"
+#include "kd_tree.hpp"
 
 class triangle_index;
 

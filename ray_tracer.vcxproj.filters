@@ -143,9 +143,6 @@
     <ClInclude Include="bezier_surface.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="kd_tree.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="mesh.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -156,6 +153,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="aa_box.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="kd_tree.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

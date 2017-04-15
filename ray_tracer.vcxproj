@@ -197,7 +197,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="image.h" />
-    <ClInclude Include="kd_tree.h" />
+    <ClInclude Include="kd_tree.hpp" />
     <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="mesh.h" />
