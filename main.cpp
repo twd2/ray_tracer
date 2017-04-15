@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.001, 3.6);
+    mesh m = bc.to_rotate_surface_mesh(0.01, 0.36);
     for (auto &v : m.vertices)
     {
         v = v * 10.0;

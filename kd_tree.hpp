@@ -18,7 +18,7 @@ public:
     public:
         aa_cube range; // (x0, x1] x (y0, y1] x (z0, z1]
         node *left = nullptr, *right = nullptr;
-        unsigned int *points = nullptr;
+        unsigned int *points = nullptr; // just stores index
         unsigned int split_dim, size = 0;
 
         node(const aa_cube &range, std::size_t split_dim)
@@ -39,7 +39,7 @@ public:
             }
             if (points)
             {
-                delete points;
+                delete [] points;
             }
         }
     };
@@ -52,7 +52,7 @@ public:
 
     }
 
-    kd_tree(std::shared_ptr<node> &root, std::vector<T> &&points)
+    kd_tree(std::shared_ptr<node> root, std::vector<T> &&points)
         : root(root), points(std::move(points))
     {
 
@@ -65,7 +65,8 @@ private:
     template <typename TITERATOR>
     static node *_build(std::vector<T> &points, 
                         TITERATOR begin, TITERATOR end,
-                        const aa_cube &range, std::size_t split_dim);
+                        const aa_cube &range, const aa_cube &other_range,
+                        std::size_t split_dim, std::size_t depth);
 };
 
 template <typename T>
@@ -112,19 +113,21 @@ kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end)
 
     std::shared_ptr<typename kd_tree<T>::node> root(
         _build(points, numbers.begin(), numbers.end(),
-               aa_cube(min_v, max_v - min_v), 0));
-    return kd_tree(std::move(root), std::move(points));
+               aa_cube(min_v, max_v - min_v), aa_cube(vector3df::zero, vector3df::zero),
+               0, 0));
+    return kd_tree(root, std::move(points));
 }
 
 template <typename T>
 template <typename TITERATOR>
 typename kd_tree<T>::node *kd_tree<T>::_build(std::vector<T> &points,
                                               TITERATOR begin, TITERATOR end,
-                                              const aa_cube &range, std::size_t split_dim)
+                                              const aa_cube &range, const aa_cube &other_range,
+                                              std::size_t split_dim, std::size_t depth)
 {
-    std::size_t size = end - begin;
-    if (size < 128)
+    if (depth >= 32) // too deep
     {
+        // printf("too deep %llu\n", end - begin);
         return nullptr;
     }
 
@@ -133,12 +136,12 @@ typename kd_tree<T>::node *kd_tree<T>::_build(std::vector<T> &points,
     for (TITERATOR iter = begin; iter != end; ++iter)
     {
         T &point = points[*iter];
-        if (point.is_inside(range))
+        if (point.is_inside(range) /*|| point.not_inside(other_range)*/)
         {
             ++node_size;
         }
     }
-    if (node_size < 128)
+    if (depth > 0 && node_size < 128)
     {
         return nullptr;
     }
@@ -151,13 +154,13 @@ typename kd_tree<T>::node *kd_tree<T>::_build(std::vector<T> &points,
     for (TITERATOR iter = begin; iter != end; ++iter)
     {
         T &point = points[*iter];
-        if (point.is_inside(range))
+        if (point.is_inside(range) /*|| point.not_inside(other_range)*/)
         {
             node->points[i] = *iter;
             ++i;
         }
     }
-    //printf("kd node (%p) size=%lu\n", node, node_size);
+    // printf("kd node (%p) size=%lu\n", node, node_size);
 
     // split
     std::size_t median_index = node_size / 2;
@@ -192,10 +195,12 @@ typename kd_tree<T>::node *kd_tree<T>::_build(std::vector<T> &points,
         return nullptr;
     }
 
+    aa_cube left_cube(range.p, range.size - delta),
+            right_cube(range.p + delta, range.size - delta);
     node->left = _build(points, node->points, node->points + node->size,
-                        aa_cube(range.p, range.size - delta), next_dim);
+                        left_cube, right_cube, next_dim, depth + 1);
     node->right = _build(points, node->points, node->points + node->size,
-                         aa_cube(range.p + delta, range.size - delta), next_dim);
+                         right_cube, left_cube, next_dim, depth + 1);
     return node;
 }
 

@@ -9,8 +9,8 @@
 class aa_cube
 {
 public:
-    const vector3df p;
-    const vector3df size;
+    vector3df p;
+    vector3df size;
 
 public:
     aa_cube(const vector3df &p, const vector3df &size);

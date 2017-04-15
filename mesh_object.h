@@ -14,12 +14,6 @@ class mesh_object
     : public object
 {
 private:
-    struct vector_sum_count
-    {
-        vector3df sum = vector3df::zero;
-        double count = 0.0;
-    };
-
     struct triangle_cache
     {
         vector3df E1xE2, n;
@@ -66,6 +60,9 @@ public:
 private:
     triangle_intersect_result _intersect_triangle(const ray &r, std::size_t i) const;
     vector3df get_normal_vector(const triangle_intersect_result &tir) const;
+    // unsigned int _intersect(const ray &r, kd_tree<triangle_index>::node *node) const;
+    std::vector<triangle_intersect_result>
+    _intersect_all(const ray &r, kd_tree<triangle_index>::node *node) const;
 };
 
 // triangle with index, for kd-tree
@@ -133,6 +130,13 @@ public:
         return box.is_inside(mo->_v[mo->_tri[i].x]) ||
                box.is_inside(mo->_v[mo->_tri[i].y]) ||
                box.is_inside(mo->_v[mo->_tri[i].z]);
+    }
+
+    bool not_inside(const aa_cube &box) const
+    {
+        return !box.is_inside(mo->_v[mo->_tri[i].x]) ||
+               !box.is_inside(mo->_v[mo->_tri[i].y]) ||
+               !box.is_inside(mo->_v[mo->_tri[i].z]);
     }
 };
 
