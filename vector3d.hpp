@@ -16,7 +16,14 @@ template <typename T>
 class vector3d
 {
 public:
-    T x, y, z;
+    union
+    {
+        struct
+        {
+            T x, y, z;
+        };
+        T dim[3];
+    };
 
     vector3d()
         : x(T(0)), y(T(0)), z(T(0))

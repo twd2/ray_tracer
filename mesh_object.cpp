@@ -50,6 +50,7 @@ mesh_object::mesh_object(const mesh &m)
 
 intersect_result mesh_object::intersect(const ray &r) const
 {
+    // TODO: performance improve
     std::vector<intersect_result> results = intersect_all(r);
     intersect_result *closest_result = nullptr;
 

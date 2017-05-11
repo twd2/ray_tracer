@@ -85,58 +85,48 @@ public:
 
     double get_dim(std::size_t dim)
     {
-        if (dim == 0)
-        {
-            return centre.x;
-        }
-        else if (dim == 1)
-        {
-            return centre.y;
-        }
-        else if (dim == 2)
-        {
-            return centre.z;
-        }
-        else
-        {
-            // ???
-            return *reinterpret_cast<double *>(0);
-        }
+        return centre.dim[dim];
     }
 
     const double &get_dim(std::size_t dim) const
     {
-        if (dim == 0)
-        {
-            return centre.x;
-        }
-        else if (dim == 1)
-        {
-            return centre.y;
-        }
-        else if (dim == 2)
-        {
-            return centre.z;
-        }
-        else
-        {
-            // ???
-            return *reinterpret_cast<double *>(0);
-        }
+        return centre.dim[dim];
     }
 
-    bool is_inside(const aa_cube &box) const
+    bool is_dim_lt(std::size_t dim, double value) const
     {
-        return box.is_inside(mo->_v[mo->_tri[i].x]) ||
-               box.is_inside(mo->_v[mo->_tri[i].y]) ||
-               box.is_inside(mo->_v[mo->_tri[i].z]);
+        return mo._v[mo._tri[i].x].dim[dim] < value ||
+               mo._v[mo._tri[i].y].dim[dim] < value ||
+               mo._v[mo._tri[i].z].dim[dim] < value;
     }
 
-    bool not_inside(const aa_cube &box) const
+    bool is_dim_gte(std::size_t dim, double value) const
     {
-        return !box.is_inside(mo->_v[mo->_tri[i].x]) ||
-               !box.is_inside(mo->_v[mo->_tri[i].y]) ||
-               !box.is_inside(mo->_v[mo->_tri[i].z]);
+        return mo._v[mo._tri[i].x].dim[dim] >= value ||
+               mo._v[mo._tri[i].y].dim[dim] >= value ||
+               mo._v[mo._tri[i].z].dim[dim] >= value;
+    }
+
+    aa_cube get_aabb() const
+    {
+        // find axis-aligned bounding box
+        vector3df min_v(mo->_v[mo->_tri[i].x].x, mo->_v[mo->_tri[i].x].y, mo->_v[mo->_tri[i].x].z);
+        vector3df max_v = min_v;
+        for (std::size_t edge = 1; edge < 3; ++edge)
+        {
+            for (std::size_t dim = 0; dim < 3; ++dim)
+            {
+                if (mo->_v[mo->_tri[i].dim[edge]].dim[dim] < min_v.dim[dim])
+                {
+                    min_v.dim[dim] = mo->_v[mo->_tri[i].dim[edge]].dim[dim];
+                }
+                else if (mo->_v[mo->_tri[i].dim[edge]].dim[dim] > max_v.dim[dim])
+                {
+                    max_v.dim[dim] = mo->_v[mo->_tri[i].dim[edge]].dim[dim];
+                }
+            }
+        }
+        return aa_cube(min_v, max_v - min_v);
     }
 };
 
