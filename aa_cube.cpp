@@ -184,8 +184,8 @@ intersect_result aa_cube::intersect(const ray &r) const
 
     if (furthest_index == 0) // front_back
     {
-        if (!(p.x < ir.p.x && ir.p.x < p2.x &&
-              p.y < ir.p.y && ir.p.y < p2.y))
+        if (!(p.x - eps < ir.p.x && ir.p.x < p2.x + eps &&
+              p.y - eps < ir.p.y && ir.p.y < p2.y + eps))
         {
             return intersect_result::failed;
         }
@@ -193,8 +193,8 @@ intersect_result aa_cube::intersect(const ray &r) const
     }
     else if (furthest_index == 1) // left_right
     {
-        if (!(p.y < ir.p.y && ir.p.y < p2.y &&
-              p.z < ir.p.z && ir.p.z < p2.z))
+        if (!(p.y - eps < ir.p.y && ir.p.y < p2.y + eps &&
+              p.z - eps < ir.p.z && ir.p.z < p2.z + eps))
         {
             return intersect_result::failed;
         }
@@ -202,8 +202,8 @@ intersect_result aa_cube::intersect(const ray &r) const
     }
     else if (furthest_index == 2) // top_bottom
     {
-        if (!(p.x < ir.p.x && ir.p.x < p2.x &&
-              p.z < ir.p.z && ir.p.z < p2.z))
+        if (!(p.x - eps < ir.p.x && ir.p.x < p2.x + eps &&
+              p.z - eps < ir.p.z && ir.p.z < p2.z + eps))
         {
             return intersect_result::failed;
         }
@@ -245,14 +245,14 @@ std::vector<intersect_result> aa_cube::intersect_all(const ray &r) const
         {
             intersect_result ir(r.origin + r.direction * t, normals[i], t);
             if (((i == 0 || i == 1) &&
-                 p.x < ir.p.x && ir.p.x < p2.x &&
-                 p.y < ir.p.y && ir.p.y < p2.y) ||
+                 p.x - eps < ir.p.x && ir.p.x < p2.x + eps &&
+                 p.y - eps < ir.p.y && ir.p.y < p2.y + eps) ||
                 ((i == 2 || i == 3) &&
-                 p.y < ir.p.y && ir.p.y < p2.y &&
-                 p.z < ir.p.z && ir.p.z < p2.z) ||
+                 p.y - eps < ir.p.y && ir.p.y < p2.y + eps &&
+                 p.z - eps < ir.p.z && ir.p.z < p2.z + eps) ||
                 ((i == 4 || i == 5) &&
-                 p.x < ir.p.x && ir.p.x < p2.x &&
-                 p.z < ir.p.z && ir.p.z < p2.z))
+                 p.x - eps < ir.p.x && ir.p.x < p2.x + eps &&
+                 p.z - eps < ir.p.z && ir.p.z < p2.z + eps))
             {
                 results.push_back(ir);
             }

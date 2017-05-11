@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.05, 3.6);
+    mesh m = bc.to_rotate_surface_mesh(0.01, 3.6);
     for (auto &v : m.vertices)
     {
         v = v * 10.0;
@@ -149,12 +149,13 @@ int main(int argc, char **argv)
         v.y *= -1.0;
         // v.y += 40.0;
     }
-    object &mo = w.add_object(std::make_shared<mesh_object>(m));
+    mesh_object &mo = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
     mo.diffuse = vector3df(0.24, 0.48, 0.53);
-    mo.diffuse = vector3df::zero;
-    mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
-    mo.refractive_index = 1.333;
-    mo.reflectiveness = 0.9;
+    mo.smooth = false;
+    // mo.diffuse = vector3df::zero;
+    // mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    // mo.refractive_index = 1.333;
+    // mo.reflectiveness = 0.9;
     object &box = w.add_object(std::make_shared<aa_box>(vector3df(60.0, -50.0, -220.0),
                                                         vector3df(20.0, 30.0, 190.0)));
     box.diffuse = vector3df(0.24, 0.48, 0.53);
@@ -209,7 +210,7 @@ int main(int argc, char **argv)
         }
     }*/
 
-    camera c(w, vector3df(0.0, 1.0, 147.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
+    camera c(w, vector3df(0.0, 10.0, 147.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
         
     // Performance test.
     for (int N = 1; N <= 1; ++N)

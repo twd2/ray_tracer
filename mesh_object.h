@@ -51,6 +51,7 @@ private:
 
 public:
     friend class triangle_index;
+    bool smooth = true;
 
     mesh_object(const mesh &m);
 
@@ -91,20 +92,6 @@ public:
     const double &get_dim(std::size_t dim) const
     {
         return centre.dim[dim];
-    }
-
-    bool is_dim_lt(std::size_t dim, double value) const
-    {
-        return mo._v[mo._tri[i].x].dim[dim] < value ||
-               mo._v[mo._tri[i].y].dim[dim] < value ||
-               mo._v[mo._tri[i].z].dim[dim] < value;
-    }
-
-    bool is_dim_gte(std::size_t dim, double value) const
-    {
-        return mo._v[mo._tri[i].x].dim[dim] >= value ||
-               mo._v[mo._tri[i].y].dim[dim] >= value ||
-               mo._v[mo._tri[i].z].dim[dim] >= value;
     }
 
     aa_cube get_aabb() const

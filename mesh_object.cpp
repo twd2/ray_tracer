@@ -5,7 +5,7 @@ mesh_object::triangle_intersect_result::failed(false);
 
 mesh_object::mesh_object(const mesh &m)
     : object(), _mesh(m), _v(m.vertices), _tri(m.surfaces),
-    _n(m.vertices.size()), _caches(m.surfaces.size())
+      _n(m.vertices.size()), _caches(m.surfaces.size())
 {
     std::vector<triangle_index> kd_points;
     std::vector<double> count(_mesh.vertices.size());
@@ -133,18 +133,24 @@ mesh_object::_intersect_triangle(const ray &r, std::size_t i) const
         return triangle_intersect_result::failed;
     }
 
-    return triangle_intersect_result(i, t, 1 - (beta + gamma), beta, gamma);
+    return triangle_intersect_result(i, t, 1.0 - (beta + gamma), beta, gamma);
 }
 
 vector3df mesh_object::get_normal_vector(const triangle_intersect_result &tir) const
 {
     const vector3di &tri = _tri[tir.index];
-    // normal vector interpolation
-    const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
-    vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
-    n = n.normalize();
-    // n = _caches[tir.index].n; // FIXME
-    return n;
+    if (smooth)
+    {
+        // normal vector interpolation
+        const vector3df &n_a = _n[tri.x], &n_b = _n[tri.y], &n_c = _n[tri.z];
+        vector3df n = n_a * tir.alpha + n_b * tir.beta + n_c * tir.gamma;
+        n = n.normalize();
+        return n;
+    }
+    else
+    {
+        return _caches[tir.index].n;
+    }
 }
 
 std::vector<mesh_object::triangle_intersect_result>
