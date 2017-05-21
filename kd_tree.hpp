@@ -95,9 +95,6 @@ kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end)
         }
     }
 
-    min_v += vector3df::one * eps;
-    max_v += vector3df::one * eps;
-
     // build root
     std::shared_ptr<typename kd_tree<T>::node> root = std::make_shared<typename kd_tree<T>::node>(
         aa_cube(min_v, max_v - min_v), 0
@@ -115,11 +112,8 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
                             const std::vector<T> &points,
                             std::size_t depth)
 {
-    printf("depth=%llu, size=%llu\n", depth, n->size);
-    // TODO: FIXME
-    if (depth >= 20) // too deep
+    if (depth >= 0) // too deep
     {
-        // printf("too deep %llu\n", end - begin);
         return;
     }
 
@@ -130,7 +124,8 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
 
     // split
     std::size_t split_dim = n->split_dim;
-    /*std::size_t median_index = n->size / 2;
+    /* Why does not this work?
+    std::size_t median_index = n->size / 2;
     std::nth_element(n->points, n->points + median_index, n->points + n->size,
                      [split_dim, &points] (unsigned int a, unsigned int b) -> bool
                      {
@@ -138,8 +133,7 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
                      });
     unsigned int median = n->points[median_index];
     double split = points[median].get_dim(split_dim);*/
-    double split = n->range.p.dim[split_dim] + n->range.size.dim[split_dim] / 2.0;
-    printf("split=%lf\n", split);
+    double split = n->range.p.dim[n->split_dim] + n->range.size.dim[split_dim] / 2.0;
     vector3df delta(0.0, 0.0, 0.0);
     delta.dim[n->split_dim] = split - n->range.p.dim[n->split_dim];
     std::size_t next_dim;
@@ -161,8 +155,10 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
         return;
     }
 
-    aa_cube left_cube(n->range.p, n->range.size - delta),
-            right_cube(n->range.p + delta, n->range.size - delta);
+    aa_cube left_cube(n->range.p - vector3df::one * eps,
+                      n->range.size - delta + vector3df::one * (2.0 * eps)),
+            right_cube(n->range.p + delta - vector3df::one * eps,
+                       n->range.size - delta + vector3df::one * (2.0 * eps));
 
     std::vector<unsigned int> left_points, right_points;
     left_points.reserve(n->size);
@@ -194,24 +190,14 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
     n->right->points = new unsigned int[n->right->size];
     std::copy(right_points.begin(), right_points.end(), n->right->points);
 
-    printf("left_size=%llu, right_size=%llu\n", n->left->size, n->right->size);
-    
     if (n->left->size < n->size)
     {
         _fill_node(n->left, points, depth + 1);
-    }
-    else
-    {
-        printf("stopping left\n");
     }
 
     if (n->right->size < n->size)
     {
         _fill_node(n->right, points, depth + 1);
-    }
-    else
-    {
-        printf("stopping right\n");
     }
 }
 
