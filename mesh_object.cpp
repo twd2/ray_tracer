@@ -45,7 +45,7 @@ mesh_object::mesh_object(const mesh &m)
     }
 
     printf("building kd-tree\n");
-    _kdt = kd_tree<triangle_index>::build(kd_points.begin(), kd_points.end());
+    _kdt = kd_tree<triangle_index>::build(kd_points.begin(), kd_points.end(), false);
 }
 
 intersect_result mesh_object::intersect(const ray &r) const

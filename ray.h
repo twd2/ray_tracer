@@ -10,14 +10,17 @@ class ray
 public:
     vector3df origin, direction;
     double refractive_index; // origin refractive index
+    int image_x, image_y;
 
 private:
     std::stack<double> _refractive_index_history;
 
 public:
     // new ray
-    ray(const vector3df &origin, const vector3df &direction)
-        : origin(origin), direction(direction), refractive_index(1.0)
+    ray(const vector3df &origin, const vector3df &direction,
+        int image_x, int image_y)
+        : origin(origin), direction(direction), refractive_index(1.0),
+          image_x(image_x), image_y(image_y)
     {
 
     }
@@ -25,6 +28,7 @@ public:
     // for reflection
     ray(const ray &r, const vector3df &origin, const vector3df &direction)
         : origin(origin), direction(direction), refractive_index(r.refractive_index),
+          image_x(r.image_x), image_y(r.image_y),
           _refractive_index_history(r._refractive_index_history) // copy
     {
 
@@ -34,6 +38,7 @@ public:
     ray(const ray &r, const vector3df &origin, const vector3df &direction,
         bool in_out, double new_refractive_index = 1.0)
         : origin(origin), direction(direction),
+          image_x(r.image_x), image_y(r.image_y),
           _refractive_index_history(r._refractive_index_history)
     {
         if (in_out == in) // in

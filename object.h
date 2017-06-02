@@ -57,6 +57,12 @@ public:
         }
     }
 
+    virtual vector3df brdf(const vector3df &p,
+                           const vector3df &out_direction, const vector3df &in_direction) const
+    {
+        return diffuse * 1200000.0; // TODO
+    }
+
     virtual ~object()
     {
 

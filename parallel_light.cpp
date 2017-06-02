@@ -5,7 +5,7 @@
 
 light_info parallel_light::illuminate(const vector3df &p) const
 {
-    std::vector<world_intersect_result> results = w.intersect_all(ray(p, -direction));
+    std::vector<world_intersect_result> results = w.intersect_all(ray(p, -direction, 0, 0));
     vector3df coeff = vector3df::one;
     for (auto &ir : results)
     {
@@ -17,4 +17,9 @@ light_info parallel_light::illuminate(const vector3df &p) const
         coeff = coeff.modulate(ir.obj.refractiveness);
     }
     return light_info(color.modulate(coeff), direction);
+}
+
+ray parallel_light::emit(std::default_random_engine &engine) const
+{
+    return ray(vector3df::one, direction, 0, 0);
 }

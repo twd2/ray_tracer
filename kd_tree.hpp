@@ -59,15 +59,16 @@ public:
     }
 
     template <typename TITERATOR>
-    static kd_tree build(TITERATOR begin, TITERATOR end);
+    static kd_tree build(TITERATOR begin, TITERATOR end, bool use_median);
 
 private:
-    static void _fill_node(node *n, const std::vector<T> &points, std::size_t depth);
+    static void _fill_node(node *n, const std::vector<T> &points, std::size_t depth,
+                           bool use_median);
 };
 
 template <typename T>
 template <typename TITERATOR>
-kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end)
+kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end, bool use_median)
 {
     // find axis-aligned bounding box
     std::vector<T> points;
@@ -102,7 +103,7 @@ kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end)
     root->size = numbers.size();
     root->points = new unsigned int[root->size];
     std::copy(numbers.begin(), numbers.end(), root->points);
-    _fill_node(root.get(), points, 0);
+    _fill_node(root.get(), points, 0, use_median);
 
     return kd_tree(root, std::move(points));
 }
@@ -110,9 +111,10 @@ kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end)
 template <typename T>
 void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
                             const std::vector<T> &points,
-                            std::size_t depth)
+                            std::size_t depth,
+                            bool use_median)
 {
-    if (depth >= 0) // too deep
+    if (depth >= 30) // too deep
     {
         return;
     }
@@ -123,17 +125,24 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
     }
 
     // split
-    std::size_t split_dim = n->split_dim;
-    /* Why does not this work?
-    std::size_t median_index = n->size / 2;
-    std::nth_element(n->points, n->points + median_index, n->points + n->size,
-                     [split_dim, &points] (unsigned int a, unsigned int b) -> bool
-                     {
-                         return points[a].get_dim(split_dim) < points[b].get_dim(split_dim);
-                     });
-    unsigned int median = n->points[median_index];
-    double split = points[median].get_dim(split_dim);*/
-    double split = n->range.p.dim[n->split_dim] + n->range.size.dim[split_dim] / 2.0;
+    double split;
+    if (use_median)
+    {
+        std::size_t split_dim = n->split_dim;
+        std::size_t median_index = n->size / 2;
+        std::nth_element(n->points, n->points + median_index, n->points + n->size,
+                         [split_dim, &points] (unsigned int a, unsigned int b) -> bool
+                         {
+                             return points[a].get_dim(split_dim) < points[b].get_dim(split_dim);
+                         });
+        unsigned int median = n->points[median_index];
+        split = points[median].get_dim(split_dim);
+    }
+    else
+    {
+        split = n->range.p.dim[n->split_dim] + n->range.size.dim[n->split_dim] / 2.0;
+    }
+
     vector3df delta(0.0, 0.0, 0.0);
     delta.dim[n->split_dim] = split - n->range.p.dim[n->split_dim];
     std::size_t next_dim;
@@ -192,12 +201,12 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
 
     if (n->left->size < n->size)
     {
-        _fill_node(n->left, points, depth + 1);
+        _fill_node(n->left, points, depth + 1, use_median);
     }
 
     if (n->right->size < n->size)
     {
-        _fill_node(n->right, points, depth + 1);
+        _fill_node(n->right, points, depth + 1, use_median);
     }
 }
 

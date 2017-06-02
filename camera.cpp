@@ -1,14 +1,15 @@
 #include <cstddef>
 #include <cstdio>
+#include <ctime>
 #include <random>
 
 #include "camera.h"
 
 #include "light.h"
 
-static std::default_random_engine engine;
+static std::default_random_engine engine(time(nullptr));
 
-vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
+vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
 {
     if (contribution.length2() < eps)
     {
@@ -21,55 +22,21 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         return vector3df::zero;
     }
 
-    // Phong
-    vector3df Id = vector3df::zero, Is = vector3df::zero;
-    for (auto &light_ptr : w.lights)
-    {
-        light_info li = light_ptr->illuminate(ir.result.p);
-        if (li.lightness == vector3df::zero)
-        {
-            continue;
-        }
-
-        double N_dot_L = li.direction.dot(-ir.result.n);
-        if (N_dot_L >= eps)
-        {
-            Id += li.lightness.modulate(ir.obj.diffuse * N_dot_L);
-        }
-
-        vector3df R = -li.direction.reflect(ir.result.n);
-        double R_dot_V = R.dot(r.direction);
-        if (R_dot_V >= eps)
-        {
-            Is += li.lightness.modulate(ir.obj.specular * pow(R_dot_V, ir.obj.shininess));
-        }
-    }
-
     if (ir.obj.diffuse.length2() > eps2)
     {
-        /*std::uniform_real_distribution<> dist(-1.0, 1.0);
-        vector3df k = ir.result.n;
-        vector3df i = k.cross(vector3df(dist(engine), dist(engine), dist(engine))).normalize();
-        vector3df j = k.cross(i);
-        const int diffuse_n = 1000;
-        vector3df diffuseness = ir.obj.diffuse;// / diffuse_n;
-        vector3df Id2 = vector3df::zero;
-        for (int a = 0; a < diffuse_n; ++a)
-        {
-            vector3df v = i * dist(engine) + j * dist(engine) + k * ((dist(engine) + 1.0) / 2.0);
-            double N_dot_V = v.dot(ir.result.n);
-            vector3df coeff = diffuseness * N_dot_V;
-            Id2 += ray_trace(ray(ir.result.p, v, r.refractive_index),
-                                 vector3df::one * (100.0 * eps)).modulate(coeff);
-        }
-        Id += Id2; */
+        hit_point hp;
+        hp.p = ir.result.p;
+        hp.n = ir.result.n;
+        hp.ray_direction = r.direction;
+        hp.obj = &ir.obj;
+        hp.image_x = r.image_x;
+        hp.image_y = r.image_y;
+        hp.contribution = contribution * (1 - ir.obj.reflectiveness);
+        // TODO: Parallelization (mutex).
+        _hit_points.push_back(hp);
     }
 
-
-    vector3df I = Id + Is;
-
-    I = I * ((1 - ir.obj.reflectiveness) /** (1 - ir.obj.refractiveness)*/);
-
+    vector3df I = vector3df::zero;
     vector3df reflectiveness = vector3df::one * ir.obj.reflectiveness;
 
     if (ir.obj.refractiveness.length2() > eps2)
@@ -106,7 +73,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
         }
         else // total reflection
         {
-            //reflectiveness = reflectiveness + ir.obj.refractiveness;
+
         }
     }
 
@@ -120,9 +87,88 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution) const
     return I.capped();
 }
 
-void camera::render(image &img) const
+void camera::photon_trace(const ray &r, const vector3df &contribution, double radius)
 {
-    fprintf(stderr, "\rRendering... %5.2lf%%", 0.0);
+    if (contribution.length2() < eps)
+    {
+        return;
+    }
+
+    world_intersect_result ir = w.intersect(r);
+    if (!ir.succeeded)
+    {
+        return;
+    }
+
+    if (ir.obj.diffuse.length2() > eps2)
+    {
+        std::vector<unsigned int> hit_point_ids =
+            _hit_point_inside(sphere(ir.result.p, radius));
+        for (const auto &i : hit_point_ids)
+        {
+            hit_point &hp = _hit_points[i];
+            if ((ir.result.p - hp.p).length2() > hp.radius2)
+            {
+                continue;
+            }
+            // TODO: Parallelization (mutex).
+            ++hp.new_photon_count;
+            hp.flux += hp.obj->brdf(ir.result.p,
+                                    hp.ray_direction,
+                                    r.direction).modulate(contribution);
+        }
+        // TODO: reflect
+    }
+
+    vector3df reflectiveness = vector3df::one * ir.obj.reflectiveness;
+
+    if (ir.obj.refractiveness.length2() > eps2)
+    {
+        double n_r = ir.obj.refractive_index;
+        bool in_out = ray::in;
+        if (ir.result.n.dot(r.direction) >= -eps) // out
+        {
+            in_out = ray::out;
+            n_r = r.last_refractive_index();
+        }
+
+        const double n_i = r.refractive_index;
+        double cosi, cosr;
+        vector3df new_direction = r.direction.refract(ir.result.n, n_i, n_r,
+                                                      cosi, cosr);
+        if (new_direction != vector3df::zero)
+        {
+            double Rs = (n_i * cosi - n_r * cosr) / (n_i * cosi + n_r * cosr);
+            Rs *= Rs;
+            double Rp = (n_i * cosr - n_r * cosi) / (n_i * cosr + n_r * cosi);
+            Rp *= Rp;
+            double R = (Rs + Rp) / 2.0;
+            double T = 1 - (Rs + Rp) / 2.0;
+
+            vector3df refractiveness = ir.obj.refractiveness;
+            refractiveness = refractiveness * T;
+            reflectiveness = reflectiveness * R;
+
+            photon_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
+                         contribution.modulate(refractiveness), radius);
+        }
+        else // total reflection
+        {
+
+        }
+    }
+
+    if (reflectiveness.length2() > eps2)
+    {
+        photon_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
+                     contribution.modulate(reflectiveness), radius);
+    }
+}
+
+void camera::ray_trace_pass(image &img)
+{
+    _hit_points.clear();
+
     double aperture_samples2 = aperture_samples * aperture_samples;
     double delta = (double)aperture / aperture_samples;
 
@@ -149,7 +195,7 @@ void camera::render(image &img) const
                     {
                         // o = location + right * (-aperture / 2.0 + sample_x * delta) +
                         //                up * (-aperture / 2.0 + sample_y * delta)
-                        const ray r = ray(o, (t - o).normalize());
+                        const ray r = ray(o, (t - o).normalize(), x, y);
                         color += ray_trace(r, vector3df::one / aperture_samples2) /
                                  aperture_samples2;
                         o += right * delta;
@@ -159,13 +205,222 @@ void camera::render(image &img) const
             }
             else // no depth of field
             {
-                const ray r = ray(location, d.normalize());
+                const ray r = ray(location, d.normalize(), x, y);
                 color = ray_trace(r, vector3df::one);
             }
             vector3df color_float = color * 255;
             img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
         }
-        fprintf(stderr, "\rRendering... %5.2lf%%", (double)(y + 1) * 100.0 / img.height);
+        fprintf(stderr, "\rRay tracing... %5.2lf%%", (double)(y + 1) * 100.0 / img.height);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
+    printf("%lu hit points\n", _hit_points.size());
+}
+
+double camera::photon_trace_pass(int photon_count, double radius)
+{
+    constexpr double alpha = 0.7;
+
+    bool is_first_pass = false;
+
+    if (!_kdt.root)
+    {
+        printf("building kd-tree\n");
+        _kdt = kd_tree<hit_point>::build(_hit_points.begin(), _hit_points.end(), true);
+        for (auto &hp : _hit_points)
+        {
+            hp.radius2 = radius * radius;
+        }
+        is_first_pass = true;
+    }
+
+    // emit rays
+    // TODO: Parallelization.
+    for (int i = 0; i < photon_count; ++i)
+    {
+        // choose a light
+        std::uniform_int_distribution<std::size_t> dist(0, w.lights.size() - 1);
+        light &l = *w.lights[dist(engine)];
+        ray r = l.emit(engine);
+        photon_trace(r, l.flux(), radius);
+        fprintf(stderr, "\rPhoton tracing... %5.2lf%%", (double)(i + 1) * 100.0 / photon_count);
+    }
+    fprintf(stderr, "\n");
+
+    if (!is_first_pass)
+    {
+        double max_radius2 = 0.0;
+        for (auto &hp : _hit_points)
+        {
+            double coeff = (hp.photon_count + alpha * hp.new_photon_count) /
+                           (hp.photon_count + hp.new_photon_count);
+            if (hp.photon_count + hp.new_photon_count == 0)
+            {
+                coeff = alpha;
+            }
+            hp.radius2 *= coeff;
+            if (hp.radius2 > max_radius2)
+            {
+                max_radius2 = hp.radius2;
+            }
+            hp.flux = hp.flux * coeff;
+            hp.photon_count += alpha * hp.new_photon_count;
+            hp.new_photon_count = 0;
+            printf("photon_count %d\n", hp.photon_count);
+            printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
+        }
+        printf("max radius %lf\n", sqrt(max_radius2));
+        return sqrt(max_radius2);
+    }
+    else
+    {
+        for (auto &hp : _hit_points)
+        {
+            hp.photon_count = hp.new_photon_count;
+            hp.new_photon_count = 0;
+            printf("photon_count %d\n", hp.photon_count);
+            printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
+        }
+        return radius;
+    }
+}
+
+void camera::phong_estimate(image &img)
+{
+    for (std::size_t i = 0; i < _hit_points.size(); ++i)
+    {
+        auto &hp = _hit_points[i];
+        vector3df Id = vector3df::zero, Is = vector3df::zero;
+        for (auto &light_ptr : w.lights)
+        {
+            light_info li = light_ptr->illuminate(hp.p);
+            if (li.lightness == vector3df::zero)
+            {
+                continue;
+            }
+
+            double N_dot_L = li.direction.dot(-hp.n);
+            if (N_dot_L >= eps)
+            {
+                Id += li.lightness.modulate(hp.obj->diffuse * N_dot_L);
+            }
+
+            vector3df R = -li.direction.reflect(hp.n);
+            double R_dot_V = R.dot(hp.ray_direction);
+            if (R_dot_V >= eps)
+            {
+                Is += li.lightness.modulate(hp.obj->specular * pow(R_dot_V, hp.obj->shininess));
+            }
+        }
+
+        vector3df I = Id + Is;
+        I = I.modulate(hp.contribution);
+        color_t old_color = img(hp.image_x, hp.image_y);
+        // TODO: FIXME!!! REFACTOR!!!
+        vector3df color_float = I + vector3df(old_color.r, old_color.g, old_color.b) / 255;
+        color_float = color_float.capped() * 255;
+        img.set_color(hp.image_x, hp.image_y,
+                      color_t(color_float.x, color_float.y, color_float.z));
+        fprintf(stderr, "\rEstimating diffuse using Phong model... %5.2lf%%",
+                (double)(i + 1) * 100.0 / _hit_points.size());
+    }
+    fprintf(stderr, "\n");
+}
+
+void camera::ppm_estimate(image &img, int photon_count)
+{
+    if (!photon_count)
+    {
+        return;
+    }
+
+    for (std::size_t i = 0; i < _hit_points.size(); ++i)
+    {
+        auto &hp = _hit_points[i];
+        
+        vector3df I = hp.flux / (M_PI * hp.radius2 * photon_count);
+        I = I.modulate(hp.contribution);
+        color_t old_color = img(hp.image_x, hp.image_y);
+        // TODO: FIXME!!! REFACTOR!!!
+        vector3df color_float = I + vector3df(old_color.r, old_color.g, old_color.b) / 255;
+        color_float = color_float.capped() * 255;
+        img.set_color(hp.image_x, hp.image_y,
+                      color_t(color_float.x, color_float.y, color_float.z));
+        fprintf(stderr, "\rEstimating diffuse using PPM... %5.2lf%%",
+                (double)(i + 1) * 100.0 / _hit_points.size());
+    }
+    fprintf(stderr, "\n");
+}
+
+std::vector<unsigned int> camera::_hit_point_inside(const sphere &r) const
+{
+    // deduplicate
+    std::vector<unsigned int> result = _hit_point_inside(r, _kdt.root.get());
+    std::vector<bool> added(_hit_points.size());
+    for (std::size_t i = 0; i < _hit_points.size(); ++i)
+    {
+        added[i] = false;
+    }
+
+    std::vector<unsigned int> result_deduplicated;
+    for (const auto &i : result)
+    {
+        if (!added[i])
+        {
+            result_deduplicated.push_back(i);
+            added[i] = true;
+        }
+    }
+
+    return result_deduplicated;
+}
+
+std::vector<unsigned int>
+camera::_hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node) const
+{
+    std::vector<unsigned int> result;
+
+    if (!node)
+    {
+        return result;
+    }
+
+    vector3df delta = vector3df::one * r.r;
+    aa_cube big_cube(node->range.p - delta, node->range.size + delta * 2);
+
+    if (!big_cube.is_inside(r.c))
+    {
+        return result;
+    }
+
+    if (node->left && node->right)
+    {
+        std::vector<unsigned int> left_result = _hit_point_inside(r, node->left);
+        std::vector<unsigned int> right_result = _hit_point_inside(r, node->right);
+
+        // merge
+        result.insert(result.end(), left_result.begin(), left_result.end());
+        result.insert(result.end(), right_result.begin(), right_result.end());
+        return result;
+    }
+    else if (node->left)
+    {
+        return _hit_point_inside(r, node->left);
+    }
+    else if (node->right)
+    {
+        return _hit_point_inside(r, node->right);
+    }
+    else
+    {
+        for (std::size_t i = 0; i < node->size; ++i)
+        {
+            const hit_point &hp = _hit_points[node->points[i]];
+            if ((hp.p - r.c).length2() < r.r2)
+            {
+                result.push_back(node->points[i]);
+            }
+        }
+    }
+    return result;
 }

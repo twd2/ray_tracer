@@ -17,6 +17,13 @@ public:
     }
 
     light_info illuminate(const vector3df &p) const override;
+
+    ray emit(std::default_random_engine &engine) const override;
+
+    vector3df flux() const override
+    {
+        return color;
+    }
 };
 
 #endif // _PARALLEL_LIGHT_H_

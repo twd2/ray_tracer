@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.01, 3.6);
+    mesh m = bc.to_rotate_surface_mesh(0.1, 3.6);
     for (auto &v : m.vertices)
     {
         v = v * 10.0;
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
     }
     mesh_object &mo = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
     mo.diffuse = vector3df(0.24, 0.48, 0.53);
-    mo.smooth = false;
+    mo.smooth = true;
     // mo.diffuse = vector3df::zero;
     // mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
     // mo.refractive_index = 1.333;
@@ -193,8 +193,9 @@ int main(int argc, char **argv)
     floor.refractive_index = 1.333;
     floor.reflectiveness = 0.9;*/
 
-    w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
-    //w.lights.push_back(std::make_shared<point_light>(w, vector3df(-100.0, 60.0, -100.0), vector3df(1.0, 1.0, 0.8)));
+    //w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
+    w.lights.push_back(std::make_shared<point_light>(w, vector3df(-100.0, 60.0, -100.0), vector3df(1.0, 1.0, 0.8) * 2.0));
+    w.lights.push_back(std::make_shared<point_light>(w, vector3df(70.0, 60.0, 100.0), vector3df(1.0, 1.0, 0.8) * 2.0));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8) * 0.9));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 100.0), vector3df(1.0, 1.0, 0.8) * 0.9));
@@ -210,17 +211,20 @@ int main(int argc, char **argv)
         }
     }*/
 
-    camera c(w, vector3df(0.0, 147.0, 0.0), vector3df(0.0, -1.0, 0.05).normalize(), vector3df(0.0, 1.0, 0.0));
+    camera c(w, vector3df(0.0, 10.0, 147.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
         
-    // Performance test.
-    for (int N = 1; N <= 1; ++N)
+    c.ray_trace_pass(img);
+    int photon_count = 0;
+    double radius = c.photon_trace_pass(10000, 10.0);
+    photon_count += 10000;
+    for (int i = 0; i < 1; ++i)
     {
-        c.render(img);
-        if (N % 100 == 0)
-        {
-            printf("Done #%d.\n", N);
-        }
+        printf("%d\n", i);
+        radius = c.photon_trace_pass(10000, radius);
+        photon_count += 10000;
     }
+    c.ppm_estimate(img, photon_count);
+    //c.phong_estimate(img);
 
     image out(img.width / 2, img.height / 2);
     half_size(img, out);

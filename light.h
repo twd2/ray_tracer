@@ -1,8 +1,11 @@
 #ifndef _LIGHT_H_
 #define _LIGHT_H_
 
+#include <random>
+
 #include "vector3d.hpp"
 #include "world.h"
+#include "ray.h"
 
 class world;
 
@@ -35,6 +38,11 @@ public:
     {
         return light_info::dark;
     }
+
+    // TODO: template
+    virtual ray emit(std::default_random_engine &engine) const = 0;
+
+    virtual vector3df flux() const = 0;
 };
 
 #endif // _LIGHT_H_
