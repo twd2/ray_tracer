@@ -2,6 +2,8 @@
 
 #include "gui.h"
 
+#ifdef GUI
+
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
@@ -126,3 +128,5 @@ void show_image(image &img)
     glfwTerminate();
 #undef COEFF
 }
+
+#endif
