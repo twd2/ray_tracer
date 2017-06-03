@@ -306,7 +306,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
                            (hp.photon_count + hp.new_photon_count);
             if (hp.photon_count + hp.new_photon_count == 0)
             {
-                coeff = alpha;
+                coeff = 1.0;
             }
             hp.radius2 *= coeff;
             if (hp.radius2 > max_radius2)

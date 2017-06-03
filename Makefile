@@ -15,7 +15,7 @@ ifeq ($(shell uname),Linux)
 	# linker
 	LD = g++
 	LIB_DIR = -L lib/linux
-	LD_LIBS = -lglfw3 -lstdc++ -lc -lm -ldl -lX11 -lpthread -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lGLU
+	LD_LIBS = -lstdc++ -lc -lm -ldl -lpthread
 	LD_FLAGS = $(LIB_DIR)
 else
 
