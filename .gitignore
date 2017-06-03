@@ -238,4 +238,4 @@ FakesAssemblies/
 
 # Targets
 main
-test.png
+*.png
