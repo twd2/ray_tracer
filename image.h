@@ -8,14 +8,17 @@
 using std::size_t;
 using std::ptrdiff_t;
 
-union color_t
+class color_t
 {
 public:
-    struct
+    union
     {
-        std::uint8_t r, g, b, a;
+        struct
+        {
+            std::uint8_t r, g, b, a;
+        };
+        std::uint32_t raw;
     };
-    std::uint32_t raw;
 
     color_t(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a = 255)
         : r(r), g(g), b(b), a(a)
