@@ -75,7 +75,8 @@ intersect_result mesh_object::intersect(const ray &r) const
 std::vector<intersect_result> mesh_object::intersect_all(const ray &r) const
 {
     // deduplicate
-    std::vector<triangle_intersect_result> tirs = _intersect_all(r, _kdt.root.get());
+    std::vector<triangle_intersect_result> tirs;
+    _intersect_all(r, _kdt.root.get(), tirs);
     std::vector<bool> added(_tri.size());
     for (std::size_t i = 0; i < _tri.size(); ++i)
     {
@@ -83,6 +84,7 @@ std::vector<intersect_result> mesh_object::intersect_all(const ray &r) const
     }
 
     std::vector<intersect_result> result;
+    result.reserve(tirs.size());
     for (const auto &tir : tirs)
     {
         if (!added[tir.index])
@@ -153,33 +155,25 @@ vector3df mesh_object::get_normal_vector(const triangle_intersect_result &tir) c
     }
 }
 
-std::vector<mesh_object::triangle_intersect_result>
-mesh_object::_intersect_all(const ray &r, kd_tree<triangle_index>::node *node) const
+void mesh_object::_intersect_all(const ray &r, kd_tree<triangle_index>::node *node,
+                                 std::vector<triangle_intersect_result> &result) const
 {
-    std::vector<triangle_intersect_result> result;
     if (!node || !node->range.intersect(r).succeeded)
     {
-        return result;
+        return;
     }
     if (node->left && node->right)
     {
-        std::vector<triangle_intersect_result> left_result
-            = _intersect_all(r, node->left);
-        std::vector<triangle_intersect_result> right_result
-            = _intersect_all(r, node->right);
-
-        // merge
-        result.insert(result.end(), left_result.begin(), left_result.end());
-        result.insert(result.end(), right_result.begin(), right_result.end());
-        return result;
+        _intersect_all(r, node->left, result);
+        _intersect_all(r, node->right, result);
     }
     else if (node->left)
     {
-        return _intersect_all(r, node->left);
+        _intersect_all(r, node->left, result);
     }
     else if (node->right)
     {
-        return _intersect_all(r, node->right);
+        _intersect_all(r, node->right, result);
     }
     else
     {
@@ -193,5 +187,4 @@ mesh_object::_intersect_all(const ray &r, kd_tree<triangle_index>::node *node) c
             result.push_back(tir);
         }
     }
-    return result;
 }

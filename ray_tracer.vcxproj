@@ -171,7 +171,6 @@
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="image.cpp" />
-    <ClCompile Include="kd_tree.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
@@ -194,7 +193,6 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="fog.h" />
     <ClInclude Include="geometry.h" />
-    <ClInclude Include="graphics.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="kd_tree.hpp" />

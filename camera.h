@@ -81,8 +81,8 @@ public:
 
 private:
     std::vector<unsigned int> _hit_point_inside(const sphere &r) const;
-    std::vector<unsigned int>
-    _hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node) const;
+    void _hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node,
+                           std::vector<unsigned int> &result) const;
 };
 
 #endif // _CAMERA_H_

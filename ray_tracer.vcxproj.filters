@@ -69,9 +69,6 @@
     <ClCompile Include="bezier_surface.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="kd_tree.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="mesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -87,9 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="gui.h">

@@ -62,8 +62,8 @@ private:
     triangle_intersect_result _intersect_triangle(const ray &r, std::size_t i) const;
     vector3df get_normal_vector(const triangle_intersect_result &tir) const;
     // unsigned int _intersect(const ray &r, kd_tree<triangle_index>::node *node) const;
-    std::vector<triangle_intersect_result>
-    _intersect_all(const ray &r, kd_tree<triangle_index>::node *node) const;
+    void _intersect_all(const ray &r, kd_tree<triangle_index>::node *node,
+                        std::vector<triangle_intersect_result> &result) const;
 };
 
 // triangle with index, for kd-tree

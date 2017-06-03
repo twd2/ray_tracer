@@ -355,7 +355,8 @@ void camera::ppm_estimate(image &img, int photon_count)
 std::vector<unsigned int> camera::_hit_point_inside(const sphere &r) const
 {
     // deduplicate
-    std::vector<unsigned int> result = _hit_point_inside(r, _kdt.root.get());
+    std::vector<unsigned int> result;
+    _hit_point_inside(r, _kdt.root.get(), result);
     std::vector<bool> added(_hit_points.size());
     for (std::size_t i = 0; i < _hit_points.size(); ++i)
     {
@@ -363,6 +364,7 @@ std::vector<unsigned int> camera::_hit_point_inside(const sphere &r) const
     }
 
     std::vector<unsigned int> result_deduplicated;
+    result_deduplicated.reserve(result.size());
     for (const auto &i : result)
     {
         if (!added[i])
@@ -375,14 +377,12 @@ std::vector<unsigned int> camera::_hit_point_inside(const sphere &r) const
     return result_deduplicated;
 }
 
-std::vector<unsigned int>
-camera::_hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node) const
+void camera::_hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node,
+                               std::vector<unsigned int> &result) const
 {
-    std::vector<unsigned int> result;
-
     if (!node)
     {
-        return result;
+        return;
     }
 
     vector3df delta = vector3df::one * r.r;
@@ -390,26 +390,21 @@ camera::_hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node) const
 
     if (!big_cube.is_inside(r.c))
     {
-        return result;
+        return;
     }
 
     if (node->left && node->right)
     {
-        std::vector<unsigned int> left_result = _hit_point_inside(r, node->left);
-        std::vector<unsigned int> right_result = _hit_point_inside(r, node->right);
-
-        // merge
-        result.insert(result.end(), left_result.begin(), left_result.end());
-        result.insert(result.end(), right_result.begin(), right_result.end());
-        return result;
+        _hit_point_inside(r, node->left, result);
+        _hit_point_inside(r, node->right, result);
     }
     else if (node->left)
     {
-        return _hit_point_inside(r, node->left);
+        _hit_point_inside(r, node->left, result);
     }
     else if (node->right)
     {
-        return _hit_point_inside(r, node->right);
+        _hit_point_inside(r, node->right, result);
     }
     else
     {
@@ -422,5 +417,4 @@ camera::_hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node) const
             }
         }
     }
-    return result;
 }
