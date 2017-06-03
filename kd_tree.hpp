@@ -97,7 +97,7 @@ kd_tree<T> kd_tree<T>::build(TITERATOR begin, TITERATOR end, bool use_median)
     }
 
     // build root
-    std::shared_ptr<typename kd_tree<T>::node> root = std::make_shared<typename kd_tree<T>::node>(
+    std::shared_ptr<node> root = std::make_shared<node>(
         aa_cube(min_v, max_v - min_v), 0
     );
     root->size = numbers.size();
@@ -145,6 +145,17 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
 
     vector3df delta(0.0, 0.0, 0.0);
     delta.dim[n->split_dim] = split - n->range.p.dim[n->split_dim];
+    vector3df size_proj = n->range.size;
+    size_proj.dim[n->split_dim] = 0.0;
+    aa_cube left_cube(n->range.p - vector3df::one * eps,
+                      size_proj + delta + vector3df::one * (2.0 * eps)),
+            right_cube(n->range.p + delta - vector3df::one * eps,
+                       n->range.size - delta + vector3df::one * (2.0 * eps));
+
+    std::vector<unsigned int> left_points, right_points;
+    left_points.reserve(n->size);
+    right_points.reserve(n->size);
+
     std::size_t next_dim;
     if (n->split_dim == 0)
     {
@@ -163,15 +174,6 @@ void kd_tree<T>::_fill_node(typename kd_tree<T>::node *n,
         // ???
         return;
     }
-
-    aa_cube left_cube(n->range.p - vector3df::one * eps,
-                      n->range.size - delta + vector3df::one * (2.0 * eps)),
-            right_cube(n->range.p + delta - vector3df::one * eps,
-                       n->range.size - delta + vector3df::one * (2.0 * eps));
-
-    std::vector<unsigned int> left_points, right_points;
-    left_points.reserve(n->size);
-    right_points.reserve(n->size);
 
     n->left = new typename kd_tree<T>::node(left_cube, next_dim),
     n->right = new typename kd_tree<T>::node(right_cube, next_dim);

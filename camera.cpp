@@ -249,7 +249,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
 
     if (!is_first_pass)
     {
-        double max_radius2 = 0.0;
+        double max_radius2 = 0.0, min_radius2 = 1000000.0;
         for (auto &hp : _hit_points)
         {
             double coeff = (hp.photon_count + alpha * hp.new_photon_count) /
@@ -263,13 +263,18 @@ double camera::photon_trace_pass(int photon_count, double radius)
             {
                 max_radius2 = hp.radius2;
             }
+            else if (hp.radius2 < min_radius2)
+            {
+                min_radius2 = hp.radius2;
+            }
             hp.flux = hp.flux * coeff;
             hp.photon_count += alpha * hp.new_photon_count;
             hp.new_photon_count = 0;
-            printf("photon_count %d\n", hp.photon_count);
-            printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
+            //printf("photon_count %d\n", hp.photon_count);
+            //printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
         }
         printf("max radius %lf\n", sqrt(max_radius2));
+        printf("min radius %lf\n", sqrt(min_radius2));
         return sqrt(max_radius2);
     }
     else
@@ -278,8 +283,8 @@ double camera::photon_trace_pass(int photon_count, double radius)
         {
             hp.photon_count = hp.new_photon_count;
             hp.new_photon_count = 0;
-            printf("photon_count %d\n", hp.photon_count);
-            printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
+            //printf("photon_count %d\n", hp.photon_count);
+            //printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
         }
         return radius;
     }
@@ -321,8 +326,11 @@ void camera::phong_estimate(image &img)
         color_float = color_float.capped() * 255;
         img.set_color(hp.image_x, hp.image_y,
                       color_t(color_float.x, color_float.y, color_float.z));
-        fprintf(stderr, "\rEstimating diffuse using Phong model... %5.2lf%%",
-                (double)(i + 1) * 100.0 / _hit_points.size());
+        if ((i & 1023) == 0)
+        {
+            fprintf(stderr, "\rEstimating diffuse using Phong model... %5.2lf%%",
+                    (double)(i + 1) * 100.0 / _hit_points.size());
+        }
     }
     fprintf(stderr, "\n");
 }
@@ -346,8 +354,11 @@ void camera::ppm_estimate(image &img, int photon_count)
         color_float = color_float.capped() * 255;
         img.set_color(hp.image_x, hp.image_y,
                       color_t(color_float.x, color_float.y, color_float.z));
-        fprintf(stderr, "\rEstimating diffuse using PPM... %5.2lf%%",
-                (double)(i + 1) * 100.0 / _hit_points.size());
+        if ((i & 1023) == 0)
+        {
+            fprintf(stderr, "\rEstimating diffuse using PPM... %5.2lf%%",
+                    (double)(i + 1) * 100.0 / _hit_points.size());
+        }
     }
     fprintf(stderr, "\n");
 }
