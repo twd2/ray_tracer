@@ -51,9 +51,9 @@ static inline color_t mix_color(color_t foreground, color_t background)
 class image
 {
 public:
-    std::shared_ptr<std::vector<unsigned char> > raw;
     const size_t width, height;
     const size_t bit_depth, row_size;
+    std::vector<unsigned char> raw;
 
 private:
     
@@ -62,27 +62,27 @@ public:
     
     unsigned char &operator()(size_t x, size_t y, size_t rgba_sel)
     {
-        return (*raw)[y * row_size + x * bit_depth / 8 + rgba_sel];
+        return raw[y * row_size + x * bit_depth / 8 + rgba_sel];
     }
     
     const unsigned char &operator()(size_t x, size_t y, size_t rgba_sel) const
     {
-        return (*raw)[y * row_size + x * bit_depth / 8 + rgba_sel];
+        return raw[y * row_size + x * bit_depth / 8 + rgba_sel];
     }
 
     color_t &operator()(size_t x, size_t y)
     {
-        return *reinterpret_cast<color_t *>(&(*raw)[y * row_size + x * bit_depth / 8]);
+        return *reinterpret_cast<color_t *>(&raw[y * row_size + x * bit_depth / 8]);
     }
 
     const color_t &operator()(size_t x, size_t y) const
     {
-        return *reinterpret_cast<const color_t *>(&(*raw)[y * row_size + x * bit_depth / 8]);
+        return *reinterpret_cast<const color_t *>(&raw[y * row_size + x * bit_depth / 8]);
     }
 
     uint32_t &as_int(size_t x, size_t y)
     {
-        return *reinterpret_cast<uint32_t *>(&(*raw)[y * row_size + x * bit_depth / 8]);
+        return *reinterpret_cast<uint32_t *>(&raw[y * row_size + x * bit_depth / 8]);
     }
 
     void set_color(size_t x, size_t y, color_t color)
@@ -99,12 +99,12 @@ public:
 
     unsigned char &operator[](size_t i)
     {
-        return (*raw)[i];
+        return raw[i];
     }
     
     const unsigned char &operator[](size_t i) const
     {
-        return (*raw)[i];
+        return raw[i];
     }
 };
 

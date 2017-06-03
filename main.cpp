@@ -28,7 +28,7 @@
 
 void save_image(const image &img, const std::string &filename)
 {
-    lodepng::encode(filename, *img.raw, img.width, img.height, LCT_RGBA);
+    lodepng::encode(filename, img.raw, img.width, img.height, LCT_RGBA);
 }
 
 void half_size(const image &in, image &out)
@@ -224,6 +224,12 @@ int main(int argc, char **argv)
         printf("Iteration %d\n", i + 1);
         radius = c.photon_trace_pass(photons, radius);
         photon_count += photons;
+        if (i == 0 || (i + 1) % 10 == 0)
+        {
+            image img_copied = img;
+            c.ppm_estimate(img_copied, photon_count);
+            save_image(img_copied, filename + "." + to_string(i + 1) + ".png");
+        }
     }
     c.ppm_estimate(img, photon_count); // */
     //c.phong_estimate(img);
