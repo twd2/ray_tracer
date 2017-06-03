@@ -7,6 +7,15 @@
 #include <memory>
 #include <cmath>
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <sys/sysinfo.h>
+#endif
+
+#include <inttypes.h>
+#define __STDC_FORMAT_MACROS
+
 #include "lodepng.h"
 
 #include "image.h"
@@ -26,24 +35,20 @@
 #include "aa_box.h"
 
 
-void save_image(const image &img, const std::string &filename)
+void save_image(const imagef &img, const std::string &filename)
 {
-    lodepng::encode(filename, img.raw, img.width, img.height, LCT_RGBA);
+    image img_byte = img.to_image();
+    lodepng::encode(filename, img_byte.raw, img_byte.width, img_byte.height, LCT_RGBA);
 }
 
-void half_size(const image &in, image &out)
+void half_size(const imagef &in, imagef &out)
 {
     for (std::size_t y = 0; y < out.height; ++y)
     {
         for (std::size_t x = 0; x < out.width; ++x)
         {
-            const color_t &a = in(2 * x, 2 * y),
-                          &b = in(2 * x + 1, 2 * y),
-                          &c = in(2 * x, 2 * y + 1),
-                          &d = in(2 * x + 1, 2 * y + 1);
-            out.set_color(x, y, color_t(((int)a.r + (int)b.r + (int)c.r + (int)d.r) / 4,
-                                        ((int)a.g + (int)b.g + (int)c.g + (int)d.g) / 4,
-                                        ((int)a.b + (int)b.b + (int)c.b + (int)d.b) / 4));
+            out(x, y) = (in(2 * x, 2 * y) + in(2 * x + 1, 2 * y) +
+                         in(2 * x, 2 * y + 1) + in(2 * x + 1, 2 * y + 1)) / 4.0;
         }
     }
 }
@@ -55,6 +60,26 @@ std::string to_string(int i)
     std::string str;
     ss >> str;
     return str;
+}
+
+int to_int(const std::string &str)
+{
+    std::stringstream ss;
+    ss << str;
+    int i;
+    ss >> i;
+    return i;
+}
+
+int get_cores()
+{
+#ifdef _WIN32
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    return info.dwNumberOfProcessors;
+#else
+    return get_nprocs();
+#endif
 }
 
 void test_bezier()
@@ -69,19 +94,8 @@ void test_bezier()
     printf("bezier_curve\n");
 }
 
-int main(int argc, char **argv)
+void init_world(world &w)
 {
-    test_bezier();
-    // return 0;
-
-    std::string filename = "test.png";
-    if (argc >= 2)
-    {
-        filename = argv[1];
-    }
-
-    image img(800, 600);
-    world w;
     object &ground = w.add_object(std::make_shared<plane>(
         vector3df(0.0, -100.0, 0.0),
         vector3df(0.0, 1.0, 0.1).normalize()));
@@ -210,35 +224,62 @@ int main(int argc, char **argv)
                                                              vector3df(1.0, 1.0, 0.8) * (1.3 / light_samples2)));
         }
     }*/
+}
 
+int main(int argc, char **argv)
+{
+    test_bezier();
+    // return 0;
+
+    std::size_t thread_count = get_cores();
+    std::string filename = "test.png";
+    if (argc >= 2)
+    {
+        filename = argv[1];
+    }
+
+    if (argc >= 3)
+    {
+        thread_count = to_int(argv[2]);
+    }
+
+    printf("Using %" PRId64 " threads.\n", thread_count);
+
+    world w;
+    init_world(w);
+
+    imagef img(800, 600);
     camera c(w, vector3df(0.0, 10.0, 147.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
-    c.thread_count = 8;
+    c.thread_count = thread_count;
+    c.aperture = 0.0;
     c.ray_trace_pass(img);
+
+    // PPM
     int photon_count = 0;
     constexpr int photons = 100000;
     printf("Iteration (initial)\n");
     double radius = c.photon_trace_pass(photons, 10.0);
     photon_count += photons;
-    for (int i = 0; i < 40; ++i)
+    for (int i = 0; i < 1000; ++i)
     {
         printf("Iteration %d\n", i + 1);
         radius = c.photon_trace_pass(photons, radius);
         photon_count += photons;
         if (i == 0 || (i + 1) % 10 == 0)
         {
-            image img_copied = img;
+            imagef img_copied = img;
             c.ppm_estimate(img_copied, photon_count);
             save_image(img_copied, filename + "." + to_string(i + 1) + ".png");
         }
     }
     c.ppm_estimate(img, photon_count); // */
+
+    // Phong
     //c.phong_estimate(img);
 
-    image out(img.width / 2, img.height / 2);
+    imagef out(img.width / 2, img.height / 2);
     half_size(img, out);
     save_image(img, filename);
     save_image(out, "ssaa_" + filename);
-    // save_image(img, to_string(10 - i) + ".png");
-    // show_image(img);
     return 0;
 }

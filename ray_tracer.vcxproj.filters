@@ -81,6 +81,9 @@
     <ClCompile Include="aa_box.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="imagef.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -150,6 +153,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="kd_tree.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="imagef.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

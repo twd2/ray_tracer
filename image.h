@@ -31,23 +31,6 @@ public:
 };
 #define DEFAULT_BIT_DEPTH (sizeof(color_t) * 8)
 
-static inline color_t mix_color(color_t foreground, color_t background)
-{
-    if (!foreground.a)
-    {
-        return background;
-    }
-    if (foreground.a == 255)
-    {
-        return foreground;
-    }
-    const std::uint32_t a = foreground.a;
-    return color_t((uint32_t)foreground.r * a / 255 + (uint32_t)background.r * (255 - a) / 255,
-                   (uint32_t)foreground.g * a / 255 + (uint32_t)background.g * (255 - a) / 255,
-                   (uint32_t)foreground.b * a / 255 + (uint32_t)background.b * (255 - a) / 255,
-                   255 /* TODO */ );
-}
-
 class image
 {
 public:
@@ -55,21 +38,9 @@ public:
     const size_t bit_depth, row_size;
     std::vector<unsigned char> raw;
 
-private:
-    
 public:
     image(size_t width, size_t height, size_t bit_depth = DEFAULT_BIT_DEPTH);
     
-    unsigned char &operator()(size_t x, size_t y, size_t rgba_sel)
-    {
-        return raw[y * row_size + x * bit_depth / 8 + rgba_sel];
-    }
-    
-    const unsigned char &operator()(size_t x, size_t y, size_t rgba_sel) const
-    {
-        return raw[y * row_size + x * bit_depth / 8 + rgba_sel];
-    }
-
     color_t &operator()(size_t x, size_t y)
     {
         return *reinterpret_cast<color_t *>(&raw[y * row_size + x * bit_depth / 8]);
@@ -80,31 +51,9 @@ public:
         return *reinterpret_cast<const color_t *>(&raw[y * row_size + x * bit_depth / 8]);
     }
 
-    uint32_t &as_int(size_t x, size_t y)
-    {
-        return *reinterpret_cast<uint32_t *>(&raw[y * row_size + x * bit_depth / 8]);
-    }
-
     void set_color(size_t x, size_t y, color_t color)
     {
-        if (bit_depth == DEFAULT_BIT_DEPTH)
-        {
-            (*this)(x, y) = color;
-        }
-        else if (bit_depth == 8)
-        {
-            (*this)(x, y, 0) = color.r;
-        }
-    }
-
-    unsigned char &operator[](size_t i)
-    {
-        return raw[i];
-    }
-    
-    const unsigned char &operator[](size_t i) const
-    {
-        return raw[i];
+        (*this)(x, y) = color;
     }
 };
 

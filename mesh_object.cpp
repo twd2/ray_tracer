@@ -4,7 +4,7 @@ const mesh_object::triangle_intersect_result
 mesh_object::triangle_intersect_result::failed(false);
 
 mesh_object::mesh_object(const mesh &m)
-    : object(), _mesh(m), _v(m.vertices), _tri(m.surfaces),
+    : object(), _mesh(m), _v(_mesh.vertices), _tri(_mesh.surfaces),
       _n(m.vertices.size()), _caches(m.surfaces.size())
 {
     std::vector<triangle_index> kd_points;

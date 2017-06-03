@@ -4,7 +4,7 @@
 #include <cmath>
 #include <mutex>
 
-#include "image.h"
+#include "imagef.h"
 #include "ray.h"
 #include "vector3d.hpp"
 #include "world.h"
@@ -50,8 +50,8 @@ class camera
 public:
     world &w;
     vector3df location, front, right, up;
-    const double focal_length, aperture;
-    std::size_t aperture_samples = 4;
+    double focal_length, aperture;
+    std::size_t aperture_samples = 3;
     std::size_t thread_count = 1;
 
 private:
@@ -77,10 +77,10 @@ public:
 
     vector3df ray_trace(const ray &r, const vector3df &contribution);
     void photon_trace(const ray &r, const vector3df &contribution, double radius);
-    void ray_trace_pass(image &img);
+    void ray_trace_pass(imagef &img);
     double photon_trace_pass(int photon_count, double radius);
-    void phong_estimate(image &img);
-    void ppm_estimate(image &img, int photon_count);
+    void phong_estimate(imagef &img);
+    void ppm_estimate(imagef &img, int photon_count);
 
 private:
     std::vector<unsigned int> _hit_point_inside(const sphere &r) const;

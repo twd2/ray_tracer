@@ -171,6 +171,7 @@
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="image.cpp" />
+    <ClCompile Include="imagef.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="geometry.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="image.h" />
+    <ClInclude Include="imagef.h" />
     <ClInclude Include="kd_tree.hpp" />
     <ClInclude Include="light.h" />
     <ClInclude Include="lodepng.h" />

@@ -174,7 +174,7 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
     }
 }
 
-void camera::ray_trace_pass(image &img)
+void camera::ray_trace_pass(imagef &img)
 {
     _hit_points.clear();
 
@@ -219,8 +219,7 @@ void camera::ray_trace_pass(image &img)
                     const ray r = ray(location, d.normalize(), x, y);
                     color = ray_trace(r, vector3df::one);
                 }
-                vector3df color_float = color * 255;
-                img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
+                img(x, y) = color;
             }
             ++progress;
             if (is_main_thread)
@@ -320,8 +319,6 @@ double camera::photon_trace_pass(int photon_count, double radius)
             hp.flux = hp.flux * coeff;
             hp.photon_count += alpha * hp.new_photon_count;
             hp.new_photon_count = 0;
-            //printf("photon_count %d\n", hp.photon_count);
-            //printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
         }
         printf("max radius %lf\n", sqrt(max_radius2));
         printf("min radius %lf\n", sqrt(min_radius2));
@@ -333,59 +330,75 @@ double camera::photon_trace_pass(int photon_count, double radius)
         {
             hp.photon_count = hp.new_photon_count;
             hp.new_photon_count = 0;
-            //printf("photon_count %d\n", hp.photon_count);
-            //printf("flux %lf, %lf, %lf\n", hp.flux.x, hp.flux.y, hp.flux.z);
         }
         return radius;
     }
 }
 
-void camera::phong_estimate(image &img)
+void camera::phong_estimate(imagef &img)
 {
-    for (std::size_t i = 0; i < _hit_points.size(); ++i)
+    std::size_t progress = 0;
+    auto task = [&](std::size_t begin, std::size_t end, bool is_main_thread)
     {
-        auto &hp = _hit_points[i];
-        vector3df Id = vector3df::zero, Is = vector3df::zero;
-        for (auto &light_ptr : w.lights)
+        for (std::size_t i = begin; i < end; ++i)
         {
-            light_info li = light_ptr->illuminate(hp.p);
-            if (li.lightness == vector3df::zero)
+            auto &hp = _hit_points[i];
+            vector3df Id = vector3df::zero, Is = vector3df::zero;
+            for (auto &light_ptr : w.lights)
             {
-                continue;
+                light_info li = light_ptr->illuminate(hp.p);
+                if (li.lightness == vector3df::zero)
+                {
+                    continue;
+                }
+
+                double N_dot_L = li.direction.dot(-hp.n);
+                if (N_dot_L >= eps)
+                {
+                    Id += li.lightness.modulate(hp.obj->diffuse * N_dot_L);
+                }
+
+                vector3df R = -li.direction.reflect(hp.n);
+                double R_dot_V = R.dot(hp.ray_direction);
+                if (R_dot_V >= eps)
+                {
+                    Is += li.lightness.modulate(hp.obj->specular * pow(R_dot_V, hp.obj->shininess));
+                }
             }
 
-            double N_dot_L = li.direction.dot(-hp.n);
-            if (N_dot_L >= eps)
+            vector3df I = Id + Is;
+            I = I.modulate(hp.contribution);
+
             {
-                Id += li.lightness.modulate(hp.obj->diffuse * N_dot_L);
+                std::unique_lock<std::mutex> lock(_hit_points_lock);
+                img(hp.image_x, hp.image_y) = (img(hp.image_x, hp.image_y) + I).capped();
             }
 
-            vector3df R = -li.direction.reflect(hp.n);
-            double R_dot_V = R.dot(hp.ray_direction);
-            if (R_dot_V >= eps)
+            ++progress;
+            if (is_main_thread && (progress & 1023) == 0)
             {
-                Is += li.lightness.modulate(hp.obj->specular * pow(R_dot_V, hp.obj->shininess));
+                fprintf(stderr, "\rEstimating diffuse using Phone model... %5.2lf%%",
+                        (double)progress * 100.0 / _hit_points.size());
             }
         }
+    };
 
-        vector3df I = Id + Is;
-        I = I.modulate(hp.contribution);
-        color_t old_color = img(hp.image_x, hp.image_y);
-        // TODO: FIXME!!! REFACTOR!!!
-        vector3df color_float = I + vector3df(old_color.r, old_color.g, old_color.b) / 255;
-        color_float = color_float.capped() * 255;
-        img.set_color(hp.image_x, hp.image_y,
-                      color_t(color_float.x, color_float.y, color_float.z));
-        if ((i & 1023) == 0)
-        {
-            fprintf(stderr, "\rEstimating diffuse using Phong model... %5.2lf%%",
-                    (double)(i + 1) * 100.0 / _hit_points.size());
-        }
+    std::vector<std::shared_ptr<std::thread> > tasks;
+    std::size_t chunk_size = _hit_points.size() / thread_count;
+    for (std::size_t i = 0; i < thread_count - 1; ++i)
+    {
+        tasks.push_back(std::make_shared<std::thread>(task, i * chunk_size, (i + 1) * chunk_size, true));
     }
+    task(chunk_size * (thread_count - 1), _hit_points.size(), true);
+    for (std::size_t i = 0; i < thread_count - 1; ++i)
+    {
+        tasks[i]->join();
+    }
+
     fprintf(stderr, "\n");
 }
 
-void camera::ppm_estimate(image &img, int photon_count)
+void camera::ppm_estimate(imagef &img, int photon_count)
 {
     if (!photon_count)
     {
@@ -398,12 +411,7 @@ void camera::ppm_estimate(image &img, int photon_count)
         
         vector3df I = hp.flux / (M_PI * hp.radius2 * photon_count);
         I = I.modulate(hp.contribution);
-        color_t old_color = img(hp.image_x, hp.image_y);
-        // TODO: FIXME!!! REFACTOR!!!
-        vector3df color_float = I + vector3df(old_color.r, old_color.g, old_color.b) / 255;
-        color_float = color_float.capped() * 255;
-        img.set_color(hp.image_x, hp.image_y,
-                      color_t(color_float.x, color_float.y, color_float.z));
+        img(hp.image_x, hp.image_y) = (img(hp.image_x, hp.image_y) + I).capped();
         if ((i & 1023) == 0)
         {
             fprintf(stderr, "\rEstimating diffuse using PPM... %5.2lf%%",
