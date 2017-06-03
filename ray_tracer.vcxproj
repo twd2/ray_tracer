@@ -211,9 +211,6 @@
     <ClInclude Include="world.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="test.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="bezier_curve.txt">
       <DeploymentContent>true</DeploymentContent>
     </Text>

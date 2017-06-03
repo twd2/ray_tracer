@@ -2,6 +2,7 @@
 #define _CAMERA_H_
 
 #include <cmath>
+#include <mutex>
 
 #include "image.h"
 #include "ray.h"
@@ -51,14 +52,16 @@ public:
     vector3df location, front, right, up;
     const double focal_length, aperture;
     std::size_t aperture_samples = 4;
+    std::size_t thread_count = 1;
 
 private:
     std::vector<hit_point> _hit_points;
     kd_tree<hit_point> _kdt;
+    std::mutex _hit_points_lock;
 
 public:
     camera(world &w, const vector3df &location, const vector3df &front, const vector3df &up)
-        : camera(w, location, front, up, 367.0, 10.0)
+        : camera(w, location, front, up, 367.0, 0.0)
     {
 
     }

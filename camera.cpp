@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <ctime>
 #include <random>
+#include <thread>
 
 #include "camera.h"
 
@@ -32,8 +33,11 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
         hp.image_x = r.image_x;
         hp.image_y = r.image_y;
         hp.contribution = contribution * (1 - ir.obj.reflectiveness);
-        // TODO: Parallelization (mutex).
-        _hit_points.push_back(hp);
+
+        {
+            std::unique_lock<std::mutex> lock(_hit_points_lock);
+            _hit_points.push_back(hp);
+        }
     }
 
     vector3df I = vector3df::zero;
@@ -111,11 +115,16 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
             {
                 continue;
             }
-            // TODO: Parallelization (mutex).
-            ++hp.new_photon_count;
-            hp.flux += hp.obj->brdf(ir.result.p,
-                                    hp.ray_direction,
-                                    r.direction).modulate(contribution);
+
+            vector3df flux = hp.obj->brdf(ir.result.p,
+                                          hp.ray_direction,
+                                          r.direction).modulate(contribution);
+
+            {
+                std::unique_lock<std::mutex> lock(_hit_points_lock);
+                ++hp.new_photon_count;
+                hp.flux += flux;
+            }
         }
         // TODO: reflect
     }
@@ -172,47 +181,67 @@ void camera::ray_trace_pass(image &img)
     double aperture_samples2 = aperture_samples * aperture_samples;
     double delta = (double)aperture / aperture_samples;
 
-    // TODO: Parallelization.
+    std::ptrdiff_t progress = 0;
     std::ptrdiff_t half_width = img.width / 2, half_height = img.height / 2;
-    for (std::ptrdiff_t y = 0; y < img.height; ++y)
+    auto task = [&] (std::ptrdiff_t begin, std::ptrdiff_t end, bool is_main_thread)
     {
-        for (std::ptrdiff_t x = 0; x < img.width; ++x)
+        for (std::ptrdiff_t y = begin; y < end; ++y)
         {
-            const std::ptrdiff_t world_x = x, world_y = img.height - y - 1;
-            vector3df color = vector3df::zero;
-            const vector3df d = right * (double)(world_x - half_width) +
+            for (std::ptrdiff_t x = 0; x < img.width; ++x)
+            {
+                const std::ptrdiff_t world_x = x, world_y = img.height - y - 1;
+                vector3df color = vector3df::zero;
+                const vector3df d = right * (double)(world_x - half_width) +
                                 up * (double)(world_y - half_height) +
                                 front * (double)(focal_length);
-            if (aperture != 0.0)
-            {
-                const vector3df t = location + d;
-                // samples
-                vector3df o_y = location + up * (-aperture / 2.0) + right * (-aperture / 2.0);
-                for (std::ptrdiff_t sample_y = 0; sample_y < aperture_samples; ++sample_y)
+                if (aperture != 0.0)
                 {
-                    vector3df o = o_y;
-                    for (std::ptrdiff_t sample_x = 0; sample_x < aperture_samples; ++sample_x)
+                    const vector3df t = location + d;
+                    // samples
+                    vector3df o_y = location + up * (-aperture / 2.0) + right * (-aperture / 2.0);
+                    for (std::ptrdiff_t sample_y = 0; sample_y < aperture_samples; ++sample_y)
                     {
-                        // o = location + right * (-aperture / 2.0 + sample_x * delta) +
-                        //                up * (-aperture / 2.0 + sample_y * delta)
-                        const ray r = ray(o, (t - o).normalize(), x, y);
-                        color += ray_trace(r, vector3df::one / aperture_samples2) /
-                                 aperture_samples2;
-                        o += right * delta;
+                        vector3df o = o_y;
+                        for (std::ptrdiff_t sample_x = 0; sample_x < aperture_samples; ++sample_x)
+                        {
+                            // o = location + right * (-aperture / 2.0 + sample_x * delta) +
+                            //                up * (-aperture / 2.0 + sample_y * delta)
+                            const ray r = ray(o, (t - o).normalize(), x, y);
+                            color += ray_trace(r, vector3df::one / aperture_samples2) /
+                                     aperture_samples2;
+                            o += right * delta;
+                        }
+                        o_y += up * delta;
                     }
-                    o_y += up * delta;
                 }
+                else // no depth of field
+                {
+                    const ray r = ray(location, d.normalize(), x, y);
+                    color = ray_trace(r, vector3df::one);
+                }
+                vector3df color_float = color * 255;
+                img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
             }
-            else // no depth of field
+            ++progress;
+            if (is_main_thread)
             {
-                const ray r = ray(location, d.normalize(), x, y);
-                color = ray_trace(r, vector3df::one);
+                fprintf(stderr, "\rRay tracing... %5.2lf%%", (double)progress * 100.0 / img.height);
             }
-            vector3df color_float = color * 255;
-            img.set_color(x, y, color_t(color_float.x, color_float.y, color_float.z));
         }
-        fprintf(stderr, "\rRay tracing... %5.2lf%%", (double)(y + 1) * 100.0 / img.height);
+    };
+
+    std::vector<std::shared_ptr<std::thread> > tasks;
+    std::size_t chunk_size = img.height / thread_count;
+    for (std::size_t i = 0; i < thread_count - 1; ++i)
+    {
+        tasks.push_back(std::make_shared<std::thread>(task, i * chunk_size, (i + 1) * chunk_size, true));
     }
+    task(chunk_size * (thread_count - 1), img.height, true);
+    for (std::size_t i = 0; i < thread_count - 1; ++i)
+    {
+        tasks[i]->join();
+    }
+    
     fprintf(stderr, "\n");
     printf("%lu hit points\n", _hit_points.size());
 }
@@ -235,16 +264,37 @@ double camera::photon_trace_pass(int photon_count, double radius)
     }
 
     // emit rays
-    // TODO: Parallelization.
-    for (int i = 0; i < photon_count; ++i)
+    std::size_t progress = 0;
+    auto task = [&] (std::size_t begin, std::size_t end, bool is_main_thread)
     {
-        // choose a light
-        std::uniform_int_distribution<std::size_t> dist(0, w.lights.size() - 1);
-        light &l = *w.lights[dist(engine)];
-        ray r = l.emit(engine);
-        photon_trace(r, l.flux(), radius);
-        fprintf(stderr, "\rPhoton tracing... %5.2lf%%", (double)(i + 1) * 100.0 / photon_count);
+        for (std::size_t i = begin; i < end; ++i)
+        {
+            // choose a light
+            std::uniform_int_distribution<std::size_t> dist(0, w.lights.size() - 1);
+            light &l = *w.lights[dist(engine)];
+            ray r = l.emit(engine);
+            photon_trace(r, l.flux(), radius);
+            ++progress;
+            if (is_main_thread && (progress & 1023) == 0)
+            {
+                fprintf(stderr, "\rPhoton tracing... %5.2lf%%",
+                        (double)progress * 100.0 / photon_count);
+            }
+        }
+    };
+
+    std::vector<std::shared_ptr<std::thread> > tasks;
+    std::size_t chunk_size = photon_count / thread_count;
+    for (std::size_t i = 0; i < thread_count - 1; ++i)
+    {
+        tasks.push_back(std::make_shared<std::thread>(task, i * chunk_size, (i + 1) * chunk_size, true));
     }
+    task(chunk_size * (thread_count - 1), photon_count, true);
+    for (std::size_t i = 0; i < thread_count - 1; ++i)
+    {
+        tasks[i]->join();
+    }
+
     fprintf(stderr, "\n");
 
     if (!is_first_pass)

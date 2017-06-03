@@ -212,14 +212,14 @@ int main(int argc, char **argv)
     }*/
 
     camera c(w, vector3df(0.0, 10.0, 147.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
-        
+    c.thread_count = 8;
     c.ray_trace_pass(img);
     int photon_count = 0;
     constexpr int photons = 100000;
     printf("Iteration (initial)\n");
     double radius = c.photon_trace_pass(photons, 10.0);
     photon_count += photons;
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 40; ++i)
     {
         printf("Iteration %d\n", i + 1);
         radius = c.photon_trace_pass(photons, radius);
