@@ -194,8 +194,8 @@ int main(int argc, char **argv)
     floor.reflectiveness = 0.9;*/
 
     //w.lights.push_back(std::make_shared<parallel_light>(w, vector3df(-1.0, -1.0, -1.0).normalize(), vector3df(1.0, 1.0, 0.8) * 1.5));
-    w.lights.push_back(std::make_shared<point_light>(w, vector3df(-100.0, 60.0, -100.0), vector3df(1.0, 1.0, 0.8) * 2.0));
-    w.lights.push_back(std::make_shared<point_light>(w, vector3df(70.0, 60.0, 100.0), vector3df(1.0, 1.0, 0.8) * 2.0));
+    w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 100.0, -100.0), vector3df(1.0, 1.0, 0.8)));
+    w.lights.push_back(std::make_shared<point_light>(w, vector3df(70.0, 60.0, 100.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(1000.0, 1500.0, 0.0), vector3df(1.0, 1.0, 0.8)));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, -750.0, -400.0), vector3df(1.0, 1.0, 0.8) * 0.9));
     //w.lights.push_back(std::make_shared<point_light>(w, vector3df(0.0, 1000.0, 100.0), vector3df(1.0, 1.0, 0.8) * 0.9));
@@ -215,15 +215,17 @@ int main(int argc, char **argv)
         
     c.ray_trace_pass(img);
     int photon_count = 0;
-    double radius = c.photon_trace_pass(10000, 10.0);
-    photon_count += 10000;
+    constexpr int photons = 100000;
+    printf("Iteration (initial)\n");
+    double radius = c.photon_trace_pass(photons, 10.0);
+    photon_count += photons;
     for (int i = 0; i < 1; ++i)
     {
-        printf("%d\n", i);
-        radius = c.photon_trace_pass(10000, radius);
-        photon_count += 10000;
+        printf("Iteration %d\n", i + 1);
+        radius = c.photon_trace_pass(photons, radius);
+        photon_count += photons;
     }
-    c.ppm_estimate(img, photon_count);
+    c.ppm_estimate(img, photon_count); // */
     //c.phong_estimate(img);
 
     image out(img.width / 2, img.height / 2);
