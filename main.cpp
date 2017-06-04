@@ -13,8 +13,8 @@
 #include <sys/sysinfo.h>
 #endif
 
-#include <inttypes.h>
 #define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 #include "lodepng.h"
 
