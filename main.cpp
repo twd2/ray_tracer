@@ -7,8 +7,10 @@
 #include <memory>
 #include <cmath>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include <sys/sysctl.h>
 #else
 #include <sys/sysinfo.h>
 #endif
@@ -83,10 +85,15 @@ int to_int(const std::string &str)
 
 int get_cores()
 {
-#ifdef _WIN32
+#if defined(_WIN32)
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     return info.dwNumberOfProcessors;
+#elif defined(__APPLE__)
+    int count;
+    size_t count_len = sizeof(count);
+    sysctlbyname("hw.logicalcpu", &count, &count_len, NULL, 0);
+    return count;
 #else
     return get_nprocs();
 #endif
