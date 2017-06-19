@@ -10,6 +10,7 @@ class mesh
 {
 public:
     std::vector<vector3df> vertices;
+    std::vector<vector3df> normals; // normals for vertices
     std::vector<vector3di> surfaces; // triangles, stores index of vertices, starts at 0
 
     void save(const std::string &filename) const;

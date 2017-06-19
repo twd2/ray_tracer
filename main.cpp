@@ -35,6 +35,16 @@
 #include "aa_box.h"
 
 
+std::shared_ptr<image> load_image(const std::string &filename)
+{
+    std::vector<unsigned char> raw;
+    unsigned int w, h;
+    lodepng::decode(raw, w, h, filename, LCT_RGBA);
+    std::shared_ptr<image> img = std::make_shared<image>(w, h);
+    img->raw = raw;
+    return img;
+}
+
 void save_image(const imagef &img, const std::string &filename)
 {
     image img_byte = img.to_image();
@@ -155,21 +165,28 @@ void init_world(world &w)
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    mesh m = bc.to_rotate_surface_mesh(0.1, 3.6);
-    for (auto &v : m.vertices)
+    for (auto &v : bc.data)
+    {
+        v = v * 10.0;
+        //v.x *= -1.0;
+        v.y *= -1.0;
+        // v.y += 40.0;
+    }
+    std::reverse(bc.data.begin(), bc.data.end());
+    mesh m = bc.to_rotate_surface_mesh(0.01, 3.6);
+    /*for (auto &v : m.vertices)
     {
         v = v * 10.0;
         v.x *= -1.0;
         v.y *= -1.0;
-        // v.y += 40.0;
-    }
+    }*/
     mesh_object &mo = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
     mo.diffuse = vector3df(0.24, 0.48, 0.53);
     mo.smooth = true;
-    // mo.diffuse = vector3df::zero;
-    // mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
-    // mo.refractive_index = 1.333;
-    // mo.reflectiveness = 0.9;
+    mo.diffuse = vector3df::zero;
+    mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    mo.refractive_index = 1.333;
+    mo.reflectiveness = 0.9;
     object &box = w.add_object(std::make_shared<aa_box>(vector3df(60.0, -50.0, -220.0),
                                                         vector3df(20.0, 30.0, 190.0)));
     box.diffuse = vector3df(0.24, 0.48, 0.53);

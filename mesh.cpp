@@ -5,10 +5,16 @@
 
 void mesh::save(const std::string &filename) const
 {
+    // TODO: more c++
     FILE *fd = fopen(filename.c_str(), "w");
     for (const auto &v : vertices)
     {
         fprintf(fd, "v %lf %lf %lf\n", v.x, v.y, v.z);
+    }
+
+    for (const auto &v : normals)
+    {
+        fprintf(fd, "vn %lf %lf %lf\n", v.x, v.y, v.z);
     }
 
     for (const auto &f : surfaces)

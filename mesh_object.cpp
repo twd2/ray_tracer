@@ -24,24 +24,34 @@ mesh_object::mesh_object(const mesh &m)
         cache.n = cache.E1xE2.normalize();
         _caches[i] = cache;
 
-        // make normal vector and its count
-        double area = cache.E1xE2.length() / 2.0; // = weight
-        if (area > eps)
+        if (m.normals.size() == 0)
         {
-            vector3df weighted_n = cache.n * area;
-            count[tri.x] += area;
-            _n[tri.x] += weighted_n;
-            count[tri.y] += area;
-            _n[tri.y] += weighted_n;
-            count[tri.z] += area;
-            _n[tri.z] += weighted_n;
+            // make normal vector and its count
+            double area = cache.E1xE2.length() / 2.0; // = weight
+            if (area > eps)
+            {
+                vector3df weighted_n = cache.n * area;
+                count[tri.x] += area;
+                _n[tri.x] += weighted_n;
+                count[tri.y] += area;
+                _n[tri.y] += weighted_n;
+                count[tri.z] += area;
+                _n[tri.z] += weighted_n;
+            }
         }
     }
 
-    // calc normal vectors of vertices
-    for (std::size_t i = 0; i < _v.size(); ++i)
+    if (m.normals.size() == 0)
     {
-        _n[i] = (_n[i] / count[i]).normalize();
+        // calc normal vectors of vertices
+        for (std::size_t i = 0; i < _v.size(); ++i)
+        {
+            _n[i] = (_n[i] / count[i]).normalize();
+        }
+    }
+    else
+    {
+        _n = m.normals; // just copy
     }
 
     printf("building kd-tree\n");
@@ -89,7 +99,8 @@ std::vector<intersect_result> mesh_object::intersect_all(const ray &r) const
     {
         if (!added[tir.index])
         {
-            intersect_result ir(r.origin + r.direction * tir.t, get_normal_vector(tir), tir.t);
+            intersect_result ir(r.origin + r.direction * tir.t, get_normal_vector(tir), tir.t,
+                                tir.alpha, tir.beta, tir.index);
             result.push_back(ir);
             added[tir.index] = true;
         }

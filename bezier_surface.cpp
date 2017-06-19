@@ -58,6 +58,7 @@ mesh bezier_surface::to_mesh(double du, double dv) const
 
 bezier_surface bezier_surface::load(const std::string &filename)
 {
+    // TODO: more c++
     FILE *fd = fopen(filename.c_str(), "r");
 
     std::size_t width, height;

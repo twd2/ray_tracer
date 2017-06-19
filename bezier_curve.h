@@ -10,15 +10,25 @@
 
 class bezier_curve
 {
+    // x(t, theta) = x(t) * cos(theta)
+    // y(t, theta) = y(t)
+    // z(t, theta) = -x(t) * sin(theta)
 public:
     std::vector<vector3df> data;
     const std::size_t n;
 
 private:
-    
+    mutable std::unique_ptr<bezier_curve> _cache1 = nullptr, _cache2 = nullptr; // for derivatives
+
 public:
-    bezier_curve(size_t n)
-        : data(n + 1), n(n)
+    bezier_curve(const bezier_curve &b)
+        : data(b.data), _cache1(nullptr), _cache2(nullptr), n(b.n)
+    {
+
+    }
+
+    explicit bezier_curve(size_t n)
+        : data(n + 1), _cache1(nullptr), _cache2(nullptr), n(n)
     {
 
     }
@@ -34,8 +44,12 @@ public:
     }
 
     vector3df get_point(double t) const;
+    vector3df d_dt(double t) const;
     std::vector<vector3df> to_points(double dt) const;
+    std::vector<vector3df> to_tangents(double dt) const;
     mesh to_rotate_surface_mesh(double dt, double dtheta) const;
+    vector3df d_dt(double t, double theta) const;
+    vector3df d_dtheta(double t, double theta) const;
 
     static bezier_curve load(const std::string &filename);
 };

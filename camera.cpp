@@ -355,7 +355,7 @@ void camera::phong_estimate(imagef &img)
                 double N_dot_L = li.direction.dot(-hp.n);
                 if (N_dot_L >= eps)
                 {
-                    Id += li.lightness.modulate(hp.obj->diffuse * N_dot_L);
+                    Id += li.lightness.modulate(hp.obj->diffuse * N_dot_L); // TODO: texture
                 }
 
                 vector3df R = -li.direction.reflect(hp.n);

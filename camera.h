@@ -20,6 +20,8 @@ struct hit_point
     vector3df p;
     vector3df n;
     vector3df ray_direction; // ray direction
+    std::size_t index = 0; // (optional) index
+    double u, v; // (optional) parameters for surface
     object *obj;
     int image_x, image_y;
     vector3df contribution;

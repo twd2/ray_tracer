@@ -36,5 +36,6 @@ intersect_result triangle::intersect(const ray &r) const
         return intersect_result::failed;
     }
 
-    return intersect_result(r.origin + r.direction * t, n, t);
+    return intersect_result(r.origin + r.direction * t, n, t,
+                            1.0 - (beta + gamma), beta);
 }
