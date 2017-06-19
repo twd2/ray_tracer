@@ -16,7 +16,7 @@ public:
     vector3df n; // normal vector
     double distance;
     std::size_t index = 0; // (optional) index
-    double u, v; // (optional) parameters for surface
+    double u, v; // (optional) surface parameters
 
     explicit intersect_result(bool succeeded) // Failed.
         : succeeded(succeeded)
@@ -69,7 +69,7 @@ public:
         }
     }
 
-    virtual vector3df get_diffuse(const intersect_result &ir)
+    vector3df get_diffuse(const intersect_result &ir) const
     {
         if (!texture)
         {
@@ -78,22 +78,24 @@ public:
         else
         {
             vector3df uv = _texture_uv(ir);
-            uv.y = 1.0 - uv.y;
             std::size_t x = texture->width * uv.x,
                         y = texture->height * uv.y;
             // TODO: configurable
+            // Roll back
             x %= texture->width;
             y %= texture->height;
+
+            y = texture->height - 1 - y;
             color_t c = (*texture)(x, y);
-            return vector3df((double)c.r / 255.0, (double)c.g / 255.0, (double)c.b / 255.0);
+            return vector3df(c.r, c.g, c.b) / 255.0;
         }
     }
 
-    virtual vector3df brdf(const vector3df &p,
+    virtual vector3df brdf(const intersect_result &ir,
                            const vector3df &out_direction, const vector3df &in_direction) const
     {
         // TODO: texture
-        return diffuse * 1200000.0; // TODO: BRDF
+        return get_diffuse(ir) * 1200000.0; // TODO: BRDF
     }
 
     virtual ~object()
@@ -104,7 +106,7 @@ public:
     static object dummy;
 
 private:
-    virtual vector3df _texture_uv(const intersect_result &ir)
+    virtual vector3df _texture_uv(const intersect_result &ir) const
     {
         // TODO
         return vector3df::zero;

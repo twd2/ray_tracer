@@ -29,6 +29,9 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
         hp.p = ir.result.p;
         hp.n = ir.result.n;
         hp.ray_direction = r.direction;
+        hp.index = ir.result.index;
+        hp.u = ir.result.u;
+        hp.v = ir.result.v;
         hp.obj = &ir.obj;
         hp.image_x = r.image_x;
         hp.image_y = r.image_y;
@@ -116,7 +119,8 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
                 continue;
             }
 
-            vector3df flux = hp.obj->brdf(ir.result.p,
+            // TODO: texture
+            vector3df flux = hp.obj->brdf(_to_intersect_result(hp),
                                           hp.ray_direction,
                                           r.direction).modulate(contribution);
 
@@ -355,7 +359,8 @@ void camera::phong_estimate(imagef &img)
                 double N_dot_L = li.direction.dot(-hp.n);
                 if (N_dot_L >= eps)
                 {
-                    Id += li.lightness.modulate(hp.obj->diffuse * N_dot_L); // TODO: texture
+                    Id += li.lightness.modulate(hp.obj->get_diffuse(_to_intersect_result(hp)) *
+                                                N_dot_L); // TODO: texture
                 }
 
                 vector3df R = -li.direction.reflect(hp.n);

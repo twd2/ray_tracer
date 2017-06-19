@@ -64,6 +64,20 @@ private:
     // unsigned int _intersect(const ray &r, kd_tree<triangle_index>::node *node) const;
     void _intersect_all(const ray &r, kd_tree<triangle_index>::node *node,
                         std::vector<triangle_intersect_result> &result) const;
+
+    vector3df _texture_uv(const intersect_result &ir) const override
+    {
+        if (_mesh.texture.size() == 0)
+        {
+            return vector3df::zero;
+        }
+
+        double alpha = ir.u, beta = ir.v, gamma = 1.0 - (ir.u + ir.v);
+        vector3df vta = _mesh.texture[_tri[ir.index].x],
+                  vtb = _mesh.texture[_tri[ir.index].y],
+                  vtc = _mesh.texture[_tri[ir.index].z];
+        return vta * alpha + vtb * beta + vtc * gamma;
+    }
 };
 
 // triangle with index, for kd-tree

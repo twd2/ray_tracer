@@ -98,6 +98,9 @@ mesh bezier_curve::to_rotate_surface_mesh(double dt, double dtheta) const
             }
             result.vertices.push_back(p);
             //result.normals.push_back(norm); // TODO
+            result.texture.push_back(vector3df(theta / (2 * M_PI),
+                                     (double)j / (double)(points.size() - 1),
+                                     0.0));
 
             if (i > 0 && j > 0)
             {

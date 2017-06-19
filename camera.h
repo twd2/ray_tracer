@@ -21,7 +21,7 @@ struct hit_point
     vector3df n;
     vector3df ray_direction; // ray direction
     std::size_t index = 0; // (optional) index
-    double u, v; // (optional) parameters for surface
+    double u, v; // (optional) surface parameters
     object *obj;
     int image_x, image_y;
     vector3df contribution;
@@ -88,6 +88,11 @@ private:
     std::vector<unsigned int> _hit_point_inside(const sphere &r) const;
     void _hit_point_inside(const sphere &r, kd_tree<hit_point>::node *node,
                            std::vector<unsigned int> &result) const;
+
+    intersect_result _to_intersect_result(const hit_point &hp) const
+    {
+        return intersect_result(hp.p, hp.n, 0.0 /* TODO */, hp.u, hp.v, hp.index);
+    }
 };
 
 #endif // _CAMERA_H_

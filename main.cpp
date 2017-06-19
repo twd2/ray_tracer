@@ -115,7 +115,7 @@ void init_world(world &w)
     magic1.diffuse = vector3df::zero;
     magic1.specular = vector3df::one * 0.2;
     magic1.shininess = 32.0;
-    magic1.refractiveness = vector3df::one * 0.99; // vector3df(0.5, 1.0, 0.0) * 0.9;
+    magic1.refractiveness = vector3df(0.5, 1.0, 0.0) * 0.99;
     magic1.refractive_index = 1.333;
     magic1.reflectiveness = 0.99;
 
@@ -143,7 +143,9 @@ void init_world(world &w)
     magic4.refractive_index = 1.0;
     magic4.reflectiveness = 0.9;
 
-    w.add_object(std::make_shared<sphere>(vector3df(-160.0, -40.0, -90.0), 20.0));
+    object &ball = w.add_object(std::make_shared<sphere>(vector3df(-160.0, -40.0, -90.0), 40.0));
+    ball.texture = load_image("texture1.png");
+
     object &small1 = w.add_object(std::make_shared<sphere>(vector3df(-100.0, -50.0, -60.0), 1.0));
     object &small2 = w.add_object(std::make_shared<sphere>(vector3df(-85.0, -85.0, -40.0), 2.0));
     object &small3 = w.add_object(std::make_shared<sphere>(vector3df(-70.0, -90.0, -70.0), 3.0));
@@ -164,6 +166,15 @@ void init_world(world &w)
         vector3df(100.0, -0.1, -500.0)));
     tri2.diffuse = vector3df(0.5, 0.5, 0.5);
 
+    triangle &tri3 = static_cast<triangle &>(w.add_object(std::make_shared<triangle>(
+        vector3df(0.0, 80.0, -100.0),
+        vector3df(-50.0, -0.1, -100.0),
+        vector3df(100.0, -0.1, -100.0))));
+    tri3.bind_texture(vector3df(0.5, 1.0, 0.0),
+                      vector3df(0.0, 0.0, 0.0),
+                      vector3df(1.0, 0.0, 0.0));
+    tri3.texture = ball.texture;
+
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
     for (auto &v : bc.data)
     {
@@ -183,10 +194,11 @@ void init_world(world &w)
     mesh_object &mo = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
     mo.diffuse = vector3df(0.24, 0.48, 0.53);
     mo.smooth = true;
-    mo.diffuse = vector3df::zero;
-    mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
-    mo.refractive_index = 1.333;
-    mo.reflectiveness = 0.9;
+    //mo.diffuse = vector3df::zero;
+    //mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    //mo.refractive_index = 1.333;
+    //mo.reflectiveness = 0.9;
+    mo.texture = ball.texture;
     object &box = w.add_object(std::make_shared<aa_box>(vector3df(60.0, -50.0, -220.0),
                                                         vector3df(20.0, 30.0, 190.0)));
     box.diffuse = vector3df(0.24, 0.48, 0.53);
@@ -292,7 +304,7 @@ int main(int argc, char **argv)
     c.ppm_estimate(img, photon_count); // */
 
     // Phong
-    //c.phong_estimate(img);
+    // c.phong_estimate(img);
 
     imagef out(img.width / 2, img.height / 2);
     half_size(img, out);
