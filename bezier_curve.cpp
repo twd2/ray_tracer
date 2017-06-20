@@ -135,6 +135,54 @@ vector3df bezier_curve::d_dtheta(double t, double theta) const
                      -p.x * cos(theta));
 }
 
+void bezier_curve::get(double t, double theta, vector3df &out_point,
+                       vector3df &out_d_dt, vector3df &out_d_dtheta) const
+{
+    double cos_theta = cos(theta), sin_theta = sin(theta);
+    vector3df tangent = d_dt(t);
+    out_d_dt = vector3df(tangent.x * cos_theta,
+                         tangent.y,
+                         -tangent.x * sin_theta);
+    vector3df p = get_point(t);
+    out_d_dtheta = vector3df(p.x * -sin_theta,
+                             0.0,
+                             -p.x * cos_theta);
+    out_point = vector3df(p.x * cos_theta,
+                          p.y,
+                          -p.x * sin_theta);
+}
+
+intersect_result bezier_curve::intersect(const ray &r, double t0, double u0, double v0) const
+{
+    // u: t, v: theta
+    double t = t0, u = u0, v = v0;
+    vector3df point, d_dt, d_dtheta;
+    for (std::size_t i = 0; ; ++i)
+    {
+        get(u, v, point, d_dt, d_dtheta);
+        vector3df f = r.origin + r.direction * t - point;
+        if (f.length2() < eps2)
+        {
+            break;
+        }
+
+        double D = r.direction.dot(d_dt.cross(d_dtheta));
+        t -= d_dt.dot(d_dtheta.cross(f)) / D;
+        u -= r.direction.dot(d_dtheta.cross(f)) / D;
+        v += r.direction.dot(d_dt.cross(f)) / D;
+        if (v < 0.0)
+        {
+            v = -v + M_PI;
+        }
+        if (v >= 2 * M_PI)
+        {
+            v = fmod(v, 2 * M_PI);
+        }
+        printf("i%llu: t=%0.10lf, u=%0.10lf, v=%0.10lf, v/pi=%0.10lf\n", i, t, u, v, v / M_PI);
+    }
+    return intersect_result::failed;
+}
+
 bezier_curve bezier_curve::load(const std::string &filename)
 {
     // TODO: more c++

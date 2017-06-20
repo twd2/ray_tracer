@@ -95,7 +95,7 @@ public:
                            const vector3df &out_direction, const vector3df &in_direction) const
     {
         // TODO: texture
-        return get_diffuse(ir) * 1200000.0; // TODO: BRDF
+        return get_diffuse(ir) * 60000.0; // TODO: BRDF
     }
 
     virtual ~object()
