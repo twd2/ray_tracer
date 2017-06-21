@@ -31,6 +31,7 @@
 #include "point_light.h"
 #include "parallel_light.h"
 #include "sphere_light.h"
+#include "disc_light.h"
 #include "gui.h"
 #include "bezier_surface.h"
 #include "bezier_curve.h"
@@ -155,6 +156,14 @@ void init_world(world &w)
     mirror.shininess = 32.0;
     mirror.reflectiveness = 0.99;
 
+    object &orange = w.add_object(std::make_shared<sphere>(vector3df(-10, 6.0, 20.0), 6.0));
+    orange.diffuse = vector3df::zero;
+    orange.specular = vector3df::one * 0.2;
+    orange.shininess = 32.0;
+    orange.refractiveness = vector3df(1.0, 0.75, 0.0) * 0.99;
+    orange.refractive_index = 1.5;
+    orange.reflectiveness = 0.99;
+
     triangle &twd1 = static_cast<triangle &>(w.add_object(std::make_shared<triangle>(
         vector3df(-50.0 + 0.001, 20.0, 10.0),
         vector3df(-50.0 + 0.001, 20.0, -30.0),
@@ -180,15 +189,6 @@ void init_world(world &w)
     disc.diffuse = vector3df::zero;
     disc.emission = vector3df(1.0, 1.0, 0.8);*/
 
-//#ifndef DEBUG_RT
-//    object &sphere_li = w.add_object(std::make_shared<sphere>(
-//        vector3df(0.0, 81.6 - 10.0, -10.0), 10.0));
-//    sphere_li.diffuse = vector3df::zero;
-//    sphere_li.emission = vector3df(1.0, 1.0, 0.8) * 1e4;
-//#endif
-    w.lights.push_back(std::make_shared<sphere_light>(
-        w, vector3df(-20.0, 81.6 - 6.0, 0.0), 5.001, vector3df(1.0, 1.0, 0.8)));
-
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
     std::reverse(bc.data.begin(), bc.data.end());
     mesh m = bc.to_rotate_surface_mesh(0.02, 3.6);
@@ -202,33 +202,46 @@ void init_world(world &w)
         v.x += 20.0;
     }
 
+    // test
+    // intersect_result ir = bc.intersect(ray(vector3df(0.0, -10.0, 147.0), vector3df(0.0, 0.01, -1.0).normalize(), 0, 0), 1250.0, 0.1, 1.0);
+
+    mesh_object &vase = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
+    vase.diffuse = vector3df(0.24, 0.48, 0.53);
+    vase.smooth = true;
+    //vase.diffuse = vector3df::zero;
+    //vase.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    //vase.refractive_index = 1.333;
+    vase.reflectiveness = 0.1;
+    vase.texture = load_image("vase.png");
+
     object &table = w.add_object(std::make_shared<aa_box>(vector3df(0.0, 27.0, -80.0),
-                                                        vector3df(40.0, 3.0, 40)));
-    /*table.diffuse = vector3df(0.24, 0.48, 0.53);
-    table.specular = vector3df::one * 0.2;
-    table.shininess = 32.0;*/
+        vector3df(40.0, 3.0, 40)));
     table.diffuse = vector3df::zero;
-    table.refractiveness = vector3df::one * 0.95; // vector3df(0.0, 0.5, 1.0) * 0.9;
+    table.refractiveness = vector3df::one * 0.8;
     table.refractive_index = 1.5;
-    table.reflectiveness = 0.5;
+    table.reflectiveness = 0.8;
 
     object &stick = w.add_object(std::make_shared<aa_box>(vector3df(20.0 - 2.0, 0.0, -60.0 - 2.0),
-                                                          vector3df(4.0, 27.0 - 0.001, 4.0)));
+        vector3df(4.0, 27.0 - 0.001, 4.0)));
     stick.diffuse = vector3df(170, 106, 66) / 255.0;
     stick.specular = vector3df::one * 0.2;
     stick.shininess = 32.0;
 
-    // test
-    // intersect_result ir = bc.intersect(ray(vector3df(0.0, -10.0, 147.0), vector3df(0.0, 0.01, -1.0).normalize(), 0, 0), 1250.0, 0.1, 1.0);
+    //#ifndef DEBUG_RT
+    //    object &sphere_li = w.add_object(std::make_shared<sphere>(
+    //        vector3df(0.0, 81.6 - 10.0, -10.0), 10.0));
+    //    sphere_li.diffuse = vector3df::zero;
+    //    sphere_li.emission = vector3df(1.0, 1.0, 0.8) * 1e4;
+    //#endif
+    //w.lights.push_back(std::make_shared<sphere_light>(
+    //    w, vector3df(-20.0, 81.6 - 6.0, 0.0), 5.001, vector3df(1.0, 1.0, 0.8)));
 
-    mesh_object &mo = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
-    mo.diffuse = vector3df(0.24, 0.48, 0.53);
-    mo.smooth = true;
-    //mo.diffuse = vector3df::zero;
-    //mo.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
-    //mo.refractive_index = 1.333;
-    //mo.reflectiveness = 0.9;
-    mo.texture = load_image("vase.png");
+    w.lights.push_back(std::make_shared<disc_light>(
+        w,
+        vector3df(-20.0, 81.6 - 0.001, 0.0),
+        2.5,
+        vector3df(0.0, -1.0, 0.0),
+        vector3df(1.0, 1.0, 0.8)));
 
     /*std::size_t light_samples = 4;
     double light_samples2 = light_samples * light_samples;
@@ -267,9 +280,12 @@ int main(int argc, char **argv)
     imagef img(800, 600);
     camera c(w, vector3df(0.0, 50.0, 167.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
     c.thread_count = thread_count;
-    //c.aperture = 6.0;
-    c.film_width *= 0.4;
-    c.film_height *= 0.4;
+    // c.aperture = 5.5;
+    c.focal_length = 227;
+    c.aperture_samples = 2;
+    c.diffuse_depth = 0;
+    c.film_width = 800.0 * 0.2 * 227 / 167;
+    c.film_height = 600.0 * 0.2 * 227 / 167;
     c.ray_trace_pass(img);
 
 #ifndef DEBUG_RT

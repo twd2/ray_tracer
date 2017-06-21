@@ -90,6 +90,9 @@
     <ClCompile Include="sphere_light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="disc_light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -168,6 +171,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sphere_light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="disc_light.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

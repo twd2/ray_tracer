@@ -78,8 +78,8 @@ public:
         else
         {
             vector3df uv = _texture_uv(ir);
-            std::size_t x = texture->width * uv.x,
-                        y = texture->height * uv.y;
+            std::size_t x = (std::size_t)(texture->width * uv.x),
+                        y = (std::size_t)(texture->height * uv.y);
             // TODO: configurable
             // Roll back
             x %= texture->width;

@@ -65,7 +65,7 @@ private:
 
 public:
     camera(world &w, const vector3df &location, const vector3df &front, const vector3df &up)
-        : camera(w, location, front, up, 167.0, 0.0)
+        : camera(w, location, front, up, 0.035, 0.0)
     {
 
     }
