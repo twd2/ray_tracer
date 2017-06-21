@@ -20,17 +20,17 @@ public:
     const std::size_t n;
 
 private:
-    mutable std::unique_ptr<bezier_curve> _cache1 = nullptr, _cache2 = nullptr; // for derivatives
+    mutable std::unique_ptr<bezier_curve> _cache = nullptr; // for derivatives
 
 public:
     bezier_curve(const bezier_curve &b)
-        : data(b.data), _cache1(nullptr), _cache2(nullptr), n(b.n)
+        : data(b.data), _cache(nullptr), n(b.n)
     {
 
     }
 
     explicit bezier_curve(size_t n)
-        : data(n + 1), _cache1(nullptr), _cache2(nullptr), n(n)
+        : data(n + 1), _cache(nullptr), n(n)
     {
 
     }

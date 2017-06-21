@@ -19,22 +19,16 @@ vector3df bezier_curve::get_point(double t) const
 
 vector3df bezier_curve::d_dt(double t) const
 {
-    if (!_cache1 || !_cache2)
+    if (!_cache)
     {
-        _cache1 = std::unique_ptr<bezier_curve>(new bezier_curve(n - 1));
+        _cache = std::unique_ptr<bezier_curve>(new bezier_curve(n - 1));
         for (std::size_t i = 0; i <= n - 1; ++i)
         {
-            _cache1->data[i] = data[i + 1];
-        }
-
-        _cache2 = std::unique_ptr<bezier_curve>(new bezier_curve(n - 1));
-        for (std::size_t i = 0; i <= n - 1; ++i)
-        {
-            _cache2->data[i] = data[i];
+            _cache->data[i] = (data[i + 1] - data[i]) * n;
         }
     }
 
-    return (_cache1->get_point(t) - _cache2->get_point(t)) * n;
+    return _cache->get_point(t);
 }
 
 std::vector<vector3df> bezier_curve::to_points(double dt) const
