@@ -95,8 +95,14 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
     return I;
 }
 
-void camera::photon_trace(const ray &r, const vector3df &contribution, double radius)
+void camera::photon_trace(const ray &r, const vector3df &contribution, double radius,
+                          std::size_t depth)
 {
+    if (depth > diffuse_depth)
+    {
+        return;
+    }
+
     if (contribution.length2() < eps)
     {
         return;
@@ -141,7 +147,7 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
         vector3df dir = x * (sin(theta) * cos(phi)) + y * (sin(theta) * sin(phi)) + z * cos(theta);
         photon_trace(ray(r, ir.result.p, dir),
                      contribution.modulate(ir.obj.get_diffuse(ir.result)),
-                     radius);
+                     radius, depth + 1);
     }
 
     vector3df reflectiveness = vector3df::one * ir.obj.reflectiveness;
@@ -174,7 +180,7 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
             reflectiveness = reflectiveness * R;
 
             photon_trace(ray(r, ir.result.p, new_direction, in_out, n_r),
-                         contribution.modulate(refractiveness), radius);
+                         contribution.modulate(refractiveness), radius, depth);
         }
         else // total reflection
         {
@@ -185,7 +191,7 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
     if (reflectiveness.length2() > eps2)
     {
         photon_trace(ray(r, ir.result.p, r.direction.reflect(ir.result.n)),
-                     contribution.modulate(reflectiveness), radius);
+                     contribution.modulate(reflectiveness), radius, depth);
     }
 }
 

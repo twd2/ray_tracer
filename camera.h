@@ -56,6 +56,7 @@ public:
     std::size_t aperture_samples = 3;
     std::size_t thread_count = 1;
     double film_width, film_height;
+    std::size_t diffuse_depth = 0; // 碰到漫反射面之后还能反射多少次
 
 private:
     std::vector<hit_point> _hit_points;
@@ -74,13 +75,14 @@ public:
         : w(w), location(location), front(front), right(front.cross(up).normalize()),
           up(right.cross(front)),
           focal_length(focal_length), aperture(aperture),
-          film_width(400.0), film_height(300.0)
+          film_width(0.036), film_height(0.024)
     {
 
     }
 
     vector3df ray_trace(const ray &r, const vector3df &contribution);
-    void photon_trace(const ray &r, const vector3df &contribution, double radius);
+    void photon_trace(const ray &r, const vector3df &contribution, double radius,
+                      std::size_t depth = 0);
     void ray_trace_pass(imagef &img);
     double photon_trace_pass(int photon_count, double radius);
     void phong_estimate(imagef &img);
