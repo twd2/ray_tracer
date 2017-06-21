@@ -93,6 +93,9 @@
     <ClCompile Include="disc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="rotate_bezier.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
@@ -174,6 +177,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="disc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="rotate_bezier.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

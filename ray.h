@@ -18,7 +18,7 @@ private:
 public:
     // new ray
     ray(const vector3df &origin, const vector3df &direction,
-        int image_x, int image_y)
+        int image_x = 0, int image_y = 0)
         : origin(origin), direction(direction), refractive_index(1.0),
           image_x(image_x), image_y(image_y)
     {

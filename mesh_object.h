@@ -58,6 +58,11 @@ public:
     intersect_result intersect(const ray &r) const override;
     std::vector<intersect_result> intersect_all(const ray &r) const override;
 
+    vector3df texture_uv(const intersect_result &ir) const
+    {
+        return _texture_uv(ir);
+    }
+
 private:
     triangle_intersect_result _intersect_triangle(const ray &r, std::size_t i) const;
     vector3df get_normal_vector(const triangle_intersect_result &tir) const;

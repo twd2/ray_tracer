@@ -54,7 +54,6 @@ public:
     vector3df d_dtheta(double t, double theta) const;
     void get(double t, double theta, vector3df &out_point,
              vector3df &out_d_dt, vector3df &out_d_dtheta) const;
-    intersect_result intersect(const ray &r, double t0, double u0, double v0) const;
 
     static bezier_curve load(const std::string &filename);
 };

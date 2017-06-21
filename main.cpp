@@ -37,6 +37,7 @@
 #include "bezier_curve.h"
 #include "mesh.h"
 #include "mesh_object.h"
+#include "rotate_bezier.h"
 #include "aa_box.h"
 
 // #define DEBUG_PHONG_MODEL 1
@@ -158,11 +159,10 @@ void init_world(world &w)
     mirror.reflectiveness = 0.99;
 
     sphere &bump = static_cast<sphere &>(w.add_object(std::make_shared<sphere>(
-        vector3df(-39, 7.0, -20.0), 7.0)));
+        vector3df(-39, 7.0, -30.0), 7.0)));
     bump.diffuse = vector3df::zero;
     bump.specular = vector3df::one * 0.2;
     bump.shininess = 32.0;
-    // bump.refractiveness = vector3df(1.0, 0.75, 0.0) * 0.99;
     bump.refractive_index = 1.5;
     bump.reflectiveness = 0.99;
     bump.bump_texture = load_image("texture/bump_texture.png");
@@ -186,28 +186,17 @@ void init_world(world &w)
     twd2.texture = twd1.texture;
 
     bezier_curve bezier_vase = bezier_curve::load("bezier_curve.txt");
-    std::reverse(bezier_vase.data.begin(), bezier_vase.data.end());
-    mesh vase_mesh = bezier_vase.to_rotate_surface_mesh(0.02, 3.6);
-    vector3df vase_position(20.0, 70.0, -60.0);
-    for (auto &v : vase_mesh.vertices)
+    for (auto &v : bezier_vase.data)
     {
         v = v * 5.0;
-        // v.x *= -1.0;
         v.y *= -1.0;
-        v += vase_position;
     }
-
-    for (auto &v : vase_mesh.normals)
-    {
-        v = v * -1.0;
-        v.y = v.y * -1.0;
-    }
-
-    // test
-    // intersect_result ir = bc.intersect(ray(vector3df(0.0, -10.0, 147.0), vector3df(0.0, 0.01, -1.0).normalize(), 0, 0), 1250.0, 0.1, 1.0);
-
-    mesh_object &vase = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(vase_mesh)));
-    vase.smooth = true;
+    std::reverse(bezier_vase.data.begin(), bezier_vase.data.end());
+    rotate_bezier &vase = static_cast<rotate_bezier &>(w.add_object(std::make_shared<rotate_bezier>(
+        vector3df(20.0, 70.0, -60.0),
+        bezier_vase,
+        0.02, 3.6)));
+    vase.native = true;
     vase.reflectiveness = 0.1;
     vase.texture = load_image("texture/vase.png");
 
@@ -232,6 +221,11 @@ void init_world(world &w)
         2.5,
         vector3df(0.0, -1.0, 0.0),
         vector3df(1.0, 1.0, 0.8)));
+
+    /*w.lights.push_back(std::make_shared<point_light>(
+        w,
+        vector3df(-20.0, 81.6 - 0.001, 100.0),
+        vector3df(1.0, 1.0, 0.8)));*/
 }
 
 int main(int argc, char **argv)
@@ -258,7 +252,7 @@ int main(int argc, char **argv)
     imagef img(800, 600);
     camera c(w, vector3df(0.0, 50.0, 167.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
     c.thread_count = thread_count;
-    //c.aperture = 5.5;
+    c.aperture = 4.0;
     c.focal_length = 227;
     c.aperture_samples = 2;
     //c.diffuse_depth = 1;
