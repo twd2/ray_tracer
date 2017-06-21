@@ -24,7 +24,7 @@
 #include "world.h"
 #include "camera.h"
 #include "plane.h"
-#include "circle.h"
+#include "disc.h"
 #include "sphere.h"
 #include "triangle.h"
 #include "fog.h"
@@ -39,7 +39,7 @@
 #include "mesh_object.h"
 #include "aa_box.h"
 
-// #define DEBUG_RT 1
+// #define DEBUG_PHONG_MODEL 1
 
 std::shared_ptr<image> load_image(const std::string &filename)
 {
@@ -105,14 +105,15 @@ int get_cores()
 
 void test_bezier()
 {
+    printf("bezier_surface...\n");
     bezier_surface bs = bezier_surface::load("bezier_surface.txt");
     mesh m1 = bs.to_mesh(0.01, 0.01);
-    m1.save("bs.obj");
-    printf("bezier_surface\n");
+    m1.save("bezier_surface.obj");
+
+    printf("bezier_curve...\n");
     bezier_curve bc = bezier_curve::load("bezier_curve.txt");
     mesh m2 = bc.to_rotate_surface_mesh(0.01, 3.6);
-    m2.save("bc.obj");
-    printf("bezier_curve\n");
+    m2.save("bezier_curve.obj");
 }
 
 void init_world(world &w)
@@ -156,13 +157,15 @@ void init_world(world &w)
     mirror.shininess = 32.0;
     mirror.reflectiveness = 0.99;
 
-    object &orange = w.add_object(std::make_shared<sphere>(vector3df(-10, 6.0, 20.0), 6.0));
-    orange.diffuse = vector3df::zero;
-    orange.specular = vector3df::one * 0.2;
-    orange.shininess = 32.0;
-    orange.refractiveness = vector3df(1.0, 0.75, 0.0) * 0.99;
-    orange.refractive_index = 1.5;
-    orange.reflectiveness = 0.99;
+    sphere &bump = static_cast<sphere &>(w.add_object(std::make_shared<sphere>(
+        vector3df(-39, 7.0, -20.0), 7.0)));
+    bump.diffuse = vector3df::zero;
+    bump.specular = vector3df::one * 0.2;
+    bump.shininess = 32.0;
+    // bump.refractiveness = vector3df(1.0, 0.75, 0.0) * 0.99;
+    bump.refractive_index = 1.5;
+    bump.reflectiveness = 0.99;
+    bump.bump_texture = load_image("texture/bump_texture.png");
 
     triangle &twd1 = static_cast<triangle &>(w.add_object(std::make_shared<triangle>(
         vector3df(-50.0 + 0.001, 20.0, 10.0),
@@ -171,7 +174,7 @@ void init_world(world &w)
     twd1.bind_texture(vector3df(0.0, 0.0, 0.0),
                       vector3df(1.0 / 3.0, 0.0, 0.0),
                       vector3df(0.0, 1.0, 0.0));
-    twd1.texture = load_image("texture.png");
+    twd1.texture = load_image("texture/texture.png");
 
     triangle &twd2 = static_cast<triangle &>(w.add_object(std::make_shared<triangle>(
         vector3df(-50.0 + 0.001, 20.0, -30.0),
@@ -182,59 +185,46 @@ void init_world(world &w)
                       vector3df(0.0, 1.0, 0.0));
     twd2.texture = twd1.texture;
 
-    /*object &disc = w.add_object(std::make_shared<circle>(
-        vector3df(0.0, 81.6 - 0.001, -10.0),
-        20.0,
-        vector3df(0.0, -1.0, 0.0).normalize()));
-    disc.diffuse = vector3df::zero;
-    disc.emission = vector3df(1.0, 1.0, 0.8);*/
-
-    bezier_curve bc = bezier_curve::load("bezier_curve.txt");
-    std::reverse(bc.data.begin(), bc.data.end());
-    mesh m = bc.to_rotate_surface_mesh(0.02, 3.6);
-    for (auto &v : m.vertices)
+    bezier_curve bezier_vase = bezier_curve::load("bezier_curve.txt");
+    std::reverse(bezier_vase.data.begin(), bezier_vase.data.end());
+    mesh vase_mesh = bezier_vase.to_rotate_surface_mesh(0.02, 3.6);
+    vector3df vase_position(20.0, 70.0, -60.0);
+    for (auto &v : vase_mesh.vertices)
     {
         v = v * 5.0;
-        //v.x *= -1.0;
+        // v.x *= -1.0;
         v.y *= -1.0;
-        v.y += 70.0;
-        v.z -= 60.0;
-        v.x += 20.0;
+        v += vase_position;
+    }
+
+    for (auto &v : vase_mesh.normals)
+    {
+        v = v * -1.0;
+        v.y = v.y * -1.0;
     }
 
     // test
     // intersect_result ir = bc.intersect(ray(vector3df(0.0, -10.0, 147.0), vector3df(0.0, 0.01, -1.0).normalize(), 0, 0), 1250.0, 0.1, 1.0);
 
-    mesh_object &vase = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(m)));
-    vase.diffuse = vector3df(0.24, 0.48, 0.53);
+    mesh_object &vase = static_cast<mesh_object &>(w.add_object(std::make_shared<mesh_object>(vase_mesh)));
     vase.smooth = true;
-    //vase.diffuse = vector3df::zero;
-    //vase.refractiveness = vector3df::one * 0.9; // vector3df(0.0, 0.5, 1.0) * 0.9;
-    //vase.refractive_index = 1.333;
     vase.reflectiveness = 0.1;
-    vase.texture = load_image("vase.png");
+    vase.texture = load_image("texture/vase.png");
 
-    object &table = w.add_object(std::make_shared<aa_box>(vector3df(0.0, 27.0, -80.0),
+    object &table = w.add_object(std::make_shared<aa_box>(
+        vector3df(0.0, 27.0, -80.0),
         vector3df(40.0, 3.0, 40)));
     table.diffuse = vector3df::zero;
     table.refractiveness = vector3df::one * 0.8;
     table.refractive_index = 1.5;
     table.reflectiveness = 0.8;
 
-    object &stick = w.add_object(std::make_shared<aa_box>(vector3df(20.0 - 2.0, 0.0, -60.0 - 2.0),
+    object &stick = w.add_object(std::make_shared<aa_box>(
+        vector3df(20.0 - 2.0, 0.0, -60.0 - 2.0),
         vector3df(4.0, 27.0 - 0.001, 4.0)));
     stick.diffuse = vector3df(170, 106, 66) / 255.0;
     stick.specular = vector3df::one * 0.2;
     stick.shininess = 32.0;
-
-    //#ifndef DEBUG_RT
-    //    object &sphere_li = w.add_object(std::make_shared<sphere>(
-    //        vector3df(0.0, 81.6 - 10.0, -10.0), 10.0));
-    //    sphere_li.diffuse = vector3df::zero;
-    //    sphere_li.emission = vector3df(1.0, 1.0, 0.8) * 1e4;
-    //#endif
-    //w.lights.push_back(std::make_shared<sphere_light>(
-    //    w, vector3df(-20.0, 81.6 - 6.0, 0.0), 5.001, vector3df(1.0, 1.0, 0.8)));
 
     w.lights.push_back(std::make_shared<disc_light>(
         w,
@@ -242,23 +232,11 @@ void init_world(world &w)
         2.5,
         vector3df(0.0, -1.0, 0.0),
         vector3df(1.0, 1.0, 0.8)));
-
-    /*std::size_t light_samples = 4;
-    double light_samples2 = light_samples * light_samples;
-    for (int j = 0; j < light_samples; ++j)
-    {
-        for (int i = 0; i < light_samples; ++i)
-        {
-            w.lights.push_back(std::make_shared<point_light>(w, vector3df(i * 2.0, 100.0, 10.0 - j * 2.0),
-                                                             vector3df(1.0, 1.0, 0.8) * (1.3 / light_samples2)));
-        }
-    }*/
 }
 
 int main(int argc, char **argv)
 {
     test_bezier();
-    // return 0;
 
     std::size_t thread_count = get_cores();
     std::string filename = "test.png";
@@ -280,26 +258,27 @@ int main(int argc, char **argv)
     imagef img(800, 600);
     camera c(w, vector3df(0.0, 50.0, 167.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
     c.thread_count = thread_count;
-    // c.aperture = 5.5;
+    //c.aperture = 5.5;
     c.focal_length = 227;
     c.aperture_samples = 2;
-    c.diffuse_depth = 0;
+    //c.diffuse_depth = 1;
     c.film_width = 800.0 * 0.2 * 227 / 167;
     c.film_height = 600.0 * 0.2 * 227 / 167;
     c.ray_trace_pass(img);
 
-#ifndef DEBUG_RT
+#ifndef DEBUG_PHONG_MODEL
     // PPM
     int photon_count = 0;
     constexpr int photons = 100000;
     printf("Iteration (initial)\n");
     double radius = c.photon_trace_pass(photons, 10.0);
     photon_count += photons;
-    for (int i = 0; i < 1000; ++i)
+    for (int i = 0; i < 5000; ++i)
     {
         printf("Iteration %d\n", i + 1);
         radius = c.photon_trace_pass(photons, radius);
         photon_count += photons;
+
         if (i == 0 || (i + 1) % 10 == 0)
         {
             imagef img_copied = img;
@@ -307,10 +286,10 @@ int main(int argc, char **argv)
             save_image(img_copied, filename + "." + to_string(i + 1) + ".png");
         }
     }
-    c.ppm_estimate(img, photon_count); // */
+    c.ppm_estimate(img, photon_count);
 #endif
 
-#ifdef DEBUG_RT
+#ifdef DEBUG_PHONG_MODEL
     // Phong
     c.phong_estimate(img);
 #endif

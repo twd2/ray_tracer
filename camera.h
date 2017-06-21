@@ -31,6 +31,14 @@ struct hit_point
     int photon_count = 0, new_photon_count = 0;
     vector3df flux = vector3df::zero;
 
+    hit_point(const ray &r, object &obj, const intersect_result &ir)
+        : p(ir.p), n(ir.n), ray_direction(r.direction),
+          index(ir.index), u(ir.u), v(ir.v), obj(&obj),
+          image_x(r.image_x), image_y(r.image_y)
+    {
+
+    }
+
     double get_dim(std::size_t dim)
     {
         return p.dim[dim];

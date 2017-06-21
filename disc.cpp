@@ -1,14 +1,14 @@
 #include <cstddef>
 #include <cstdio>
 
-#include "circle.h"
+#include "disc.h"
 
 #include "object.h"
 #include "plane.h"
 #include "ray.h"
 #include "vector3d.hpp"
 
-intersect_result circle::intersect(const ray &r) const
+intersect_result disc::intersect(const ray &r) const
 {
     intersect_result ir = plane::intersect(r);
     if (!ir.succeeded)

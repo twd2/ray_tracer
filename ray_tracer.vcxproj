@@ -167,7 +167,7 @@
     <ClCompile Include="bezier_curve.cpp" />
     <ClCompile Include="bezier_surface.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="circle.cpp" />
+    <ClCompile Include="disc.cpp" />
     <ClCompile Include="disc_light.cpp" />
     <ClCompile Include="fog.cpp" />
     <ClCompile Include="geometry.cpp" />
@@ -195,7 +195,7 @@
     <ClInclude Include="bezier_curve.h" />
     <ClInclude Include="bezier_surface.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="circle.h" />
+    <ClInclude Include="disc.h" />
     <ClInclude Include="disc_light.h" />
     <ClInclude Include="fog.h" />
     <ClInclude Include="geometry.h" />

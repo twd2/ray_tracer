@@ -54,7 +54,7 @@ mesh_object::mesh_object(const mesh &m)
         _n = m.normals; // just copy
     }
 
-    printf("building kd-tree\n");
+    printf("Building kd-tree (mesh)...\n");
     _kdt = kd_tree<triangle_index>::build(kd_points.begin(), kd_points.end(), true);
 }
 

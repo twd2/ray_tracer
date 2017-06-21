@@ -11,6 +11,7 @@ class sphere
 public:
     const vector3df c;
     const double r, r2; // radius and its squared
+    std::shared_ptr<image> bump_texture = nullptr;
 
     sphere(const vector3df &c, double r)
         : object(), c(c), r(r), r2(r * r)
@@ -22,6 +23,9 @@ public:
     std::vector<intersect_result> intersect_all(const ray &r) const override;
 
 private:
+    vector3df _get_normal(const intersect_result &ir) const;
+    double _get_bump_texture(const vector3df &uv) const;
+
     vector3df _texture_uv(const intersect_result &ir) const override
     {
         // x = r * sin(theta) * cos(phi)

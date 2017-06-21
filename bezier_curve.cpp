@@ -24,7 +24,7 @@ vector3df bezier_curve::d_dt(double t) const
         _cache = std::unique_ptr<bezier_curve>(new bezier_curve(n - 1));
         for (std::size_t i = 0; i <= n - 1; ++i)
         {
-            _cache->data[i] = (data[i + 1] - data[i]) * n;
+            _cache->data[i] = (data[i + 1] - data[i]) * (double)n;
         }
     }
 
@@ -34,7 +34,7 @@ vector3df bezier_curve::d_dt(double t) const
 std::vector<vector3df> bezier_curve::to_points(double dt) const
 {
     std::vector<vector3df> result;
-    std::size_t nt = 1.0 / dt + 1;
+    std::size_t nt = (std::size_t)(1.0 / dt + 1);
     double t = 0.0;
     for (std::size_t i = 0; i < nt; ++i)
     {
@@ -47,7 +47,7 @@ std::vector<vector3df> bezier_curve::to_points(double dt) const
 std::vector<vector3df> bezier_curve::to_tangents(double dt) const
 {
     std::vector<vector3df> result;
-    std::size_t nt = 1.0 / dt + 1;
+    std::size_t nt = (std::size_t)(1.0 / dt + 1);
     double t = 0.0;
     for (std::size_t i = 0; i < nt; ++i)
     {
@@ -64,7 +64,7 @@ mesh bezier_curve::to_rotate_surface_mesh(double dt, double dtheta) const
 
     mesh result;
     dtheta *= 2.0 * M_PI / 360.0;
-    std::size_t ntheta = 2.0 * M_PI / dtheta + 1;
+    std::size_t ntheta = (std::size_t)(2.0 * M_PI / dtheta + 1);
     double theta = 0.0;
     std::size_t pid = 0;
     for (std::size_t i = 0; i < ntheta; ++i)
@@ -84,14 +84,13 @@ mesh bezier_curve::to_rotate_surface_mesh(double dt, double dtheta) const
             vector3df norm;
             if (ddtheta.length2() < eps2)
             {
-                norm = vector3df::up;
+                ddtheta = vector3df(points[(j + 2) % points.size()].x * -sin_theta,
+                                    0.0,
+                                    -points[(j + 2) % points.size()].x * cos_theta);
             }
-            else
-            {
-                norm = -ddt.cross(ddtheta).normalize();
-            }
+            norm = -ddt.cross(ddtheta).normalize();
             result.vertices.push_back(p);
-            //result.normals.push_back(norm); // TODO
+            result.normals.push_back(norm); // TODO
             result.texture.push_back(vector3df(theta / (2 * M_PI),
                                      (double)j / (double)(points.size() - 1),
                                      0.0));

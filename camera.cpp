@@ -25,16 +25,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
 
     if (ir.obj.diffuse.length2() > eps2)
     {
-        hit_point hp;
-        hp.p = ir.result.p;
-        hp.n = ir.result.n;
-        hp.ray_direction = r.direction;
-        hp.index = ir.result.index;
-        hp.u = ir.result.u;
-        hp.v = ir.result.v;
-        hp.obj = &ir.obj;
-        hp.image_x = r.image_x;
-        hp.image_y = r.image_y;
+        hit_point hp(r, ir.obj, ir.result);
         hp.contribution = contribution * (1 - ir.obj.reflectiveness);
 
         {
@@ -204,7 +195,7 @@ void camera::ray_trace_pass(imagef &img)
 
     std::ptrdiff_t progress = 0;
     double half_width = (double)film_width / 2.0, half_height = (double)film_height / 2.0;
-    auto task = [&] (std::ptrdiff_t begin, std::ptrdiff_t end, bool is_main_thread)
+    auto task = [&] (std::ptrdiff_t begin, std::ptrdiff_t end, bool print_progress)
     {
         for (std::ptrdiff_t y = begin; y < end; ++y)
         {
@@ -244,7 +235,7 @@ void camera::ray_trace_pass(imagef &img)
                 img(x, y) = color.capped();
             }
             ++progress;
-            if (is_main_thread)
+            if (print_progress)
             {
                 fprintf(stderr, "\rRay tracing... %5.2lf%%", (double)progress * 100.0 / img.height);
             }
@@ -275,7 +266,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
 
     if (!_kdt.root)
     {
-        printf("building kd-tree\n");
+        printf("Building kd-tree (hit points)...\n");
         _kdt = kd_tree<hit_point>::build(_hit_points.begin(), _hit_points.end(), true);
         for (auto &hp : _hit_points)
         {
@@ -286,7 +277,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
 
     // emit rays
     std::size_t progress = 0;
-    auto task = [&] (std::size_t begin, std::size_t end, bool is_main_thread)
+    auto task = [&] (std::size_t begin, std::size_t end, bool print_progress)
     {
         for (std::size_t i = begin; i < end; ++i)
         {
@@ -296,7 +287,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
             ray r = l.emit(engine);
             photon_trace(r, l.flux(), radius);
             ++progress;
-            if (is_main_thread && (progress & 1023) == 0)
+            if (print_progress && (progress & 1023) == 0)
             {
                 fprintf(stderr, "\rPhoton tracing... %5.2lf%%",
                         (double)progress * 100.0 / photon_count);
@@ -320,7 +311,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
 
     if (!is_first_pass)
     {
-        double max_radius2 = 0.0, min_radius2 = 1000000.0;
+        double max_radius2 = 0.0, min_radius2 = 1e6;
         for (auto &hp : _hit_points)
         {
             double coeff = (hp.photon_count + alpha * hp.new_photon_count) /
@@ -360,7 +351,7 @@ double camera::photon_trace_pass(int photon_count, double radius)
 void camera::phong_estimate(imagef &img)
 {
     std::size_t progress = 0;
-    auto task = [&](std::size_t begin, std::size_t end, bool is_main_thread)
+    auto task = [&](std::size_t begin, std::size_t end, bool print_progress)
     {
         for (std::size_t i = begin; i < end; ++i)
         {
@@ -398,7 +389,7 @@ void camera::phong_estimate(imagef &img)
             }
 
             ++progress;
-            if (is_main_thread && (progress & 1023) == 0)
+            if (print_progress && (progress & 1023) == 0)
             {
                 fprintf(stderr, "\rEstimating diffuse using Phone model... %5.2lf%%",
                         (double)progress * 100.0 / _hit_points.size());

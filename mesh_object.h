@@ -51,7 +51,7 @@ private:
 
 public:
     friend class triangle_index;
-    bool smooth = true;
+    bool smooth = true; // normal vector interpolation
 
     mesh_object(const mesh &m);
 
