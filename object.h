@@ -94,7 +94,6 @@ public:
     virtual vector3df brdf(const intersect_result &ir,
                            const vector3df &out_direction, const vector3df &in_direction) const
     {
-        // TODO: texture
         return get_diffuse(ir) * 60000.0; // TODO: BRDF
     }
 
@@ -108,7 +107,6 @@ public:
 private:
     virtual vector3df _texture_uv(const intersect_result &ir) const
     {
-        // TODO
         return vector3df::zero;
     }
 };

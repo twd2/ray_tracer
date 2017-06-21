@@ -44,6 +44,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
     }
 
     vector3df I = vector3df::zero;
+    I += ir.obj.emission;
     vector3df reflectiveness = vector3df::one * ir.obj.reflectiveness;
 
     if (ir.obj.refractiveness.length2() > eps2)
@@ -91,7 +92,7 @@ vector3df camera::ray_trace(const ray &r, const vector3df &contribution)
         I += Ireflect;
     }
 
-    return I.capped();
+    return I;
 }
 
 void camera::photon_trace(const ray &r, const vector3df &contribution, double radius)
@@ -119,7 +120,6 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
                 continue;
             }
 
-            // TODO: texture
             vector3df flux = hp.obj->brdf(_to_intersect_result(hp),
                                           hp.ray_direction,
                                           r.direction).modulate(contribution);
@@ -130,7 +130,18 @@ void camera::photon_trace(const ray &r, const vector3df &contribution, double ra
                 hp.flux += flux;
             }
         }
-        // TODO: reflect
+
+        // diffuse
+        vector3df z = ir.result.n;
+        vector3df x = z.get_vert();
+        vector3df y = z.cross(x);
+        std::uniform_real_distribution<double> theta_dist(0.0, M_PI / 2);
+        std::uniform_real_distribution<double> phi_dist(0.0, 2 * M_PI);
+        double theta = theta_dist(engine), phi = phi_dist(engine);
+        vector3df dir = x * (sin(theta) * cos(phi)) + y * (sin(theta) * sin(phi)) + z * cos(theta);
+        photon_trace(ray(r, ir.result.p, dir),
+                     contribution.modulate(ir.obj.get_diffuse(ir.result)),
+                     radius);
     }
 
     vector3df reflectiveness = vector3df::one * ir.obj.reflectiveness;
@@ -186,14 +197,15 @@ void camera::ray_trace_pass(imagef &img)
     double delta = (double)aperture / aperture_samples;
 
     std::ptrdiff_t progress = 0;
-    std::ptrdiff_t half_width = img.width / 2, half_height = img.height / 2;
+    double half_width = (double)film_width / 2.0, half_height = (double)film_height / 2.0;
     auto task = [&] (std::ptrdiff_t begin, std::ptrdiff_t end, bool is_main_thread)
     {
         for (std::ptrdiff_t y = begin; y < end; ++y)
         {
             for (std::ptrdiff_t x = 0; x < img.width; ++x)
             {
-                const std::ptrdiff_t world_x = x, world_y = img.height - y - 1;
+                const double world_x = (double)x * film_width / img.width,
+                             world_y = (double)(img.height - y - 1) * film_height / img.height;
                 vector3df color = vector3df::zero;
                 const vector3df d = right * (double)(world_x - half_width) +
                                 up * (double)(world_y - half_height) +
@@ -223,7 +235,7 @@ void camera::ray_trace_pass(imagef &img)
                     const ray r = ray(location, d.normalize(), x, y);
                     color = ray_trace(r, vector3df::one);
                 }
-                img(x, y) = color;
+                img(x, y) = color.capped();
             }
             ++progress;
             if (is_main_thread)

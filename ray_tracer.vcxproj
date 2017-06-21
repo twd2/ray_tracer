@@ -167,6 +167,7 @@
     <ClCompile Include="bezier_curve.cpp" />
     <ClCompile Include="bezier_surface.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="circle.cpp" />
     <ClCompile Include="fog.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="gui.cpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="point_light.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="sphere_light.cpp" />
     <ClCompile Include="triangle.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
@@ -192,6 +194,7 @@
     <ClInclude Include="bezier_curve.h" />
     <ClInclude Include="bezier_surface.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="circle.h" />
     <ClInclude Include="fog.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="gui.h" />
@@ -208,6 +211,7 @@
     <ClInclude Include="point_light.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="sphere_light.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="vector3d.hpp" />
     <ClInclude Include="world.h" />

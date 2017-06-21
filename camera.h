@@ -55,6 +55,7 @@ public:
     double focal_length, aperture;
     std::size_t aperture_samples = 3;
     std::size_t thread_count = 1;
+    double film_width, film_height;
 
 private:
     std::vector<hit_point> _hit_points;
@@ -63,7 +64,7 @@ private:
 
 public:
     camera(world &w, const vector3df &location, const vector3df &front, const vector3df &up)
-        : camera(w, location, front, up, 367.0, 0.0)
+        : camera(w, location, front, up, 167.0, 0.0)
     {
 
     }
@@ -72,7 +73,8 @@ public:
            double focal_length, double aperture)
         : w(w), location(location), front(front), right(front.cross(up).normalize()),
           up(right.cross(front)),
-          focal_length(focal_length), aperture(aperture)
+          focal_length(focal_length), aperture(aperture),
+          film_width(400.0), film_height(300.0)
     {
 
     }
