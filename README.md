@@ -4,15 +4,16 @@ Yet Another Ray Tracer
 ## Features
 
 * Convert Bézier surface and rotated Bézier curve to triangle mesh
-* Render spheres, axis-aligned cubes, triangles, triangles meshes, rotated Bézier curves (TODO), using Progressive Photon Mapping algorithm
+* Render spheres, axis-aligned cubes, triangles, triangles meshes, rotated Bézier curves, using Progressive Photon Mapping algorithm
 * Depth of Field
 * Super Sample Anti-Aliasing
 * Texture Mapping
+* Bump Mapping
 * Accelerate rendering using kd-tree and multithreading
 
 ## Demo
 
-TODO
+![demo](TODO)
 
 ## References
 

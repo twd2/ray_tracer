@@ -255,7 +255,7 @@ int main(int argc, char **argv)
     c.aperture = 4.0;
     c.focal_length = 227;
     c.aperture_samples = 2;
-    //c.diffuse_depth = 1;
+    c.diffuse_depth = 1;
     c.film_width = 800.0 * 0.2 * 227 / 167;
     c.film_height = 600.0 * 0.2 * 227 / 167;
     c.ray_trace_pass(img);

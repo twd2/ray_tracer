@@ -9,25 +9,25 @@ endif
 ifeq ($(shell uname),Linux)
 	# compiler
 	CC = g++
-	INC_DIR = -I include
+	INC_DIR = 
 	CC_FLAGS = $(DBG) -Wall -fno-strict-aliasing -std=gnu++11 $(INC_DIR)
 
 	# linker
 	LD = g++
-	LIB_DIR = -L lib/linux
+	LIB_DIR = 
 	LD_LIBS = -lstdc++ -lc -lm -ldl -lpthread
 	LD_FLAGS = $(LIB_DIR)
 else
 
 ifeq ($(shell uname),Darwin)
 	# compiler
-	INC_DIR = -I include
+	INC_DIR = 
 	CC_FLAGS = $(DBG) -Wall -fno-strict-aliasing -std=gnu++11 $(INC_DIR)
 
 	# linker
 	LD = cc
-	LIB_DIR = -L lib/osx
-	LD_LIBS = -lc++ -lm -lSystem -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
+	LIB_DIR = 
+	LD_LIBS = -lc++ -lm -lSystem -lpthread
 	LD_FLAGS = $(LIB_DIR)
 else
 	# Unsupported operating system.
