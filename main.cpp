@@ -218,7 +218,7 @@ void init_world(world &w)
     w.lights.push_back(std::make_shared<disc_light>(
         w,
         vector3df(-20.0, 81.6 - 0.001, 0.0),
-        2.5,
+        10.0,
         vector3df(0.0, -1.0, 0.0),
         vector3df(1.0, 1.0, 0.8)));
 
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
     c.aperture = 4.0;
     c.focal_length = 227;
     c.aperture_samples = 2;
-    c.diffuse_depth = 1;
+    //c.diffuse_depth = 1;
     c.film_width = 800.0 * 0.2 * 227 / 167;
     c.film_height = 600.0 * 0.2 * 227 / 167;
     c.ray_trace_pass(img);
@@ -265,7 +265,7 @@ int main(int argc, char **argv)
     int photon_count = 0;
     constexpr int photons = 100000;
     printf("Iteration (initial)\n");
-    double radius = c.photon_trace_pass(photons, 10.0);
+    double radius = c.photon_trace_pass(photons, 1.0);
     photon_count += photons;
     for (int i = 0; i < 5000; ++i)
     {
