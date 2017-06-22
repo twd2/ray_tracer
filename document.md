@@ -425,3 +425,15 @@ for (std::size_t i = 0; i < thread_count - 1; ++i)
 光子发射是类似的。
 
 加入多线程之后，渲染速度成倍提升（和CPU物理核心数以及单核性能密切相关）。
+
+## 参考
+
+1. 胡事民. *计算机图形学基础教程（第2版）*.
+2. *Progressive Photon Mapping*
+3. 清华大学数学科学系. *大学数学实验 实验6 非线性方程求解*
+4. [smallpt: Global Illumination in 99 lines of C++](http://www.kevinbeason.com/smallpt/)
+5. [LodePNG](http://lodev.org/lodepng/)
+6. [C++ reference](http://en.cppreference.com/w/)
+7. *Physically Based Rendering*
+8. *Realistic Image Synthesis Using Photon Mapping*
+9. *Ray Tracing From The Ground Up*

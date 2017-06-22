@@ -13,7 +13,7 @@ Yet Another Ray Tracer
 
 ## Demo
 
-![demo](TODO)
+![demo](https://github.com/twd2/ray_tracer/blob/master/demo/demo.png?raw=true)
 
 ## References
 
