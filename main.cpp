@@ -252,7 +252,7 @@ int main(int argc, char **argv)
     imagef img(800, 600);
     camera c(w, vector3df(0.0, 50.0, 167.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
     c.thread_count = thread_count;
-    c.aperture = 4.0;
+    //c.aperture = 4.0;
     c.focal_length = 227;
     c.aperture_samples = 2;
     //c.diffuse_depth = 1;
