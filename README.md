@@ -6,14 +6,15 @@ Yet Another Ray Tracer
 * Convert Bézier surface and rotated Bézier curve to triangle mesh
 * Render spheres, axis-aligned cubes, triangles, triangles meshes, rotated Bézier curves, using Progressive Photon Mapping algorithm
 * Depth of Field
-* Super Sample Anti-Aliasing
 * Texture Mapping
 * Bump Mapping
 * Accelerate rendering using kd-tree and multithreading
 
 ## Demo
 
-![demo](https://github.com/twd2/ray_tracer/blob/master/demo/demo.png?raw=true)
+![demo](demo/demo_10.png)
+
+![demo](demo/demo.png)
 
 ## References
 
