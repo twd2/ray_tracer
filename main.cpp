@@ -252,9 +252,9 @@ int main(int argc, char **argv)
     imagef img(800, 600);
     camera c(w, vector3df(0.0, 50.0, 167.0), vector3df(0.0, -0.05, -1.0).normalize(), vector3df(0.0, 1.0, 0.0));
     c.thread_count = thread_count;
-    //c.aperture = 4.0;
+    c.aperture = 4.0;
     c.focal_length = 227;
-    c.aperture_samples = 2;
+    c.aperture_samples = 4;
     //c.diffuse_depth = 1;
     c.film_width = 800.0 * 0.2 * 227 / 167;
     c.film_height = 600.0 * 0.2 * 227 / 167;
@@ -267,7 +267,7 @@ int main(int argc, char **argv)
     printf("Iteration (initial)\n");
     double radius = c.photon_trace_pass(photons, 1.0);
     photon_count += photons;
-    for (int i = 0; i < 5000; ++i)
+    for (int i = 0; i < 10000; ++i)
     {
         printf("Iteration %d\n", i + 1);
         radius = c.photon_trace_pass(photons, radius);
