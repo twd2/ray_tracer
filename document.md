@@ -96,7 +96,7 @@ vector3df bezier_curve::get_point(double t) const
 算法分为两个大步：
 
 1. （一次）光线跟踪：计算视点出发到最近的漫反射面的交点（`hit_point`）。
-2. （多轮）光子发射：从光源发射光子，用类似光线跟踪的方法跟踪光子，碰到漫反射面时寻找附近的`hit_point`，认为这个光子打在它们上面了，更新相应的参数。发射完一轮之后需要统一更新`hit_point`的参数，包括减小半径，用BRDF计算光通量等。
+2. （多轮）光子发射：从光源发射光子，用类似光线跟踪的方法跟踪光子，碰到漫反射面时寻找附近的`hit_point`，认为这个光子打在它们上面了，更新相应的参数，包括用BRDF计算光通量等。发射完一轮之后需要统一更新`hit_point`的参数，包括减小半径等。
 3. 生成图片：每一轮或多轮光子发射完之后可以生成图片。对每一个`hit_point`，计算它对相应像素颜色的贡献值，并叠加到光线跟踪渲染出的图片（一般情况下，是纯黑的图片）上，即可得到最终渲染的图片。
 
 为了得到足够精确的结果，光子发射需要迭代几千轮。实现在`camera.cpp`文件中。
@@ -125,7 +125,7 @@ $$ \mathbf{P}(t)= \sum_{i=0}^{n} \mathbf{P}_i B_{i,n}(t) $$
 
 $$ \frac{\mathrm{d}\mathbf{P}(t)}{\mathrm{d} t}= \sum_{i=0}^{n} \mathbf{P}_i \frac{\mathrm{d}B_{i,n}}{\mathrm{d}t} $$
 
-$$ =  \frac{\mathrm{d}\mathbf{P}(t)}{\mathrm{d} t} = n\sum_{i=0}^{n} \mathbf{P}_i (B_{i-1,n-1}(t)-B_{i,n-1}(t) ) $$
+$$  = n\sum_{i=0}^{n} \mathbf{P}_i (B_{i-1,n-1}(t)-B_{i,n-1}(t) ) $$
 
 $$ = n(\sum_{i=0}^{n-1} \mathbf{P}_{i+1} B_{i,n-1}(t) -  \sum_{i=0}^{n-1} \mathbf{P}_i B_{i,n-1}(t)) $$
 
@@ -184,7 +184,7 @@ intersect_result rotate_bezier::intersect(const ray &r, double t0, double u0, do
 
 首先，渲染出的图像上每一个像素实际上对应底片（或焦平面）上一个点$\mathbf{d}$，考虑相机的位置$\mathbf{p}$，该点相对于世界的坐标为$\mathbf{t}=\mathbf{p} + \mathbf{d}$。
 
-底片某点获得的光强，考虑到透镜的作用的同时做一些简化，可以认为是光线通过光圈，打到这一点的光强的累加（积分）。在从底片向场景发射光线的时候，可以对光圈进行采样（均匀或者随机，我选择均匀采样），采样点记为$\mathbf{o}$（绝对坐标），则这根光线从底片上$\mathbf{t}$出发，在相机内部经过光圈中一点$\mathbf{o}$，射向场景。相机外看上去就好像$\mathbf{o}$点发出，方向为$\mathbf{o}-\mathbf{t}$。这样有一个问题，渲染出来的图像是上下左右镜像的。解决方法也很简单，只需要发射光线的时候方向设定为$\mathbf{t}-\mathbf{o}$即可。
+底片某点获得的光强，考虑到透镜的作用的同时做一些简化，可以认为是光线通过光圈，打到这一点的光强的累加（积分）。在从底片向场景发射光线的时候，可以对光圈进行采样（均匀或者随机，我选择均匀采样），采样点记为$\mathbf{o}$（相对于世界的坐标），则这根光线从底片上$\mathbf{t}$出发，在相机内部经过光圈中一点$\mathbf{o}$，射向场景。相机外看上去就好像$\mathbf{o}$点发出，方向为$\mathbf{o}-\mathbf{t}$。这样有一个问题，渲染出来的图像是上下左右镜像的。解决方法也很简单，只需要发射光线的时候方向设定为$\mathbf{t}-\mathbf{o}$即可。
 
 相关代码：
 
@@ -318,7 +318,7 @@ $$\frac{\partial \mathbf{P}}{\partial u}=\frac{\partial \mathbf{S}}{\partial u} 
 
 $$\frac{\partial \mathbf{P}}{\partial v}=\frac{\partial \mathbf{S}}{\partial v} +\frac{\partial F}{\partial v}\mathbf{n}(u,v) + F(u,v)\frac{\partial \mathbf{n}}{\partial v} \approx \frac{\partial \mathbf{S}}{\partial v} +\frac{\partial F}{\partial v}\mathbf{n}(u,v)$$
 
-于是新的法向量，
+于是新的法向量（还需标准化），
 
 $$\mathbf{n}'=(\frac{\partial \mathbf{S}}{\partial u} +\frac{\partial F}{\partial u}\mathbf{n}(u,v)) \times (\frac{\partial \mathbf{S}}{\partial v} +\frac{\partial F}{\partial v}\mathbf{n}(u,v))$$
 
@@ -411,7 +411,7 @@ double sphere::_get_bump_texture(const vector3df &uv) const
 
 假设打算使用n个线程。光线追踪过程，我把图片按照高度均匀分为n个区间，每个线程独立渲染一个区间。光子发射轮与轮之间是串行的，每轮光子发射，我把要发射的光子数均匀分为n份，每个线程独立发射自己的一份。
 
-光线追踪相关代码：
+光线追踪多线程部分相关代码：
 
 ```c++
 // task是一个函数，表示每个子任务。
